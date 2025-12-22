@@ -15,5 +15,6 @@ namespace TicketingSystem.DataAccess.Models
         public int productId { get; set; }
         public Guid CreatedBy { get; set; }
         public Guid? AssignedTo { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }
