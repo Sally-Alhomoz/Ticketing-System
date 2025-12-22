@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Logging;
 using System.Text;
+using TicketingSystem.DataAccess.Interfaces;
 using TicketingSystem.DataAccess.Models;
 
 namespace TicketingSystem.DataAccess.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly TicketingSystemDBContext _db;
         private readonly ILogger<UserRepository> _logger;
@@ -16,22 +17,23 @@ namespace TicketingSystem.DataAccess.Repositories
             _logger = logger;
         }
 
-        public void Add(User user)
+        public bool Add(User user)
         {
             _logger.LogInformation("Adding user to the Database");
 
-            var exist = _db.Users.FindAsync(user.Id);
+            var exist = _db.Users.FirstOrDefault(x=> x.Id == user.Id);
 
             if(exist != null)
             {
                 _logger.LogWarning("User with Username: {Username} already exist.", user.Username);
-                throw new Exception("Username already exists.");
+                return false;
             }
             else
             {
                 user.Password = HashPassword(user.Password, user.Id.ToString());
                 _db.Users.Add(user);
                 _logger.LogInformation("User with ID {UserId} added successfully.", user.Id);
+                return true;
             }
         }
 
