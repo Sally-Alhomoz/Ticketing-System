@@ -21,6 +21,7 @@ namespace TicketingSystem.DataAccess.Repositories
             _db.Tickets.Add(ticket);
             _logger.LogInformation("Ticket added successfully");
         }
+
         public bool Delete(Guid id)
         {
             _logger.LogInformation("Deleting a ticket from the database.");
