@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketingSystem.DataAccess", "TicketingSystem.DataAccess\TicketingSystem.DataAccess.csproj", "{9EC3F214-8BA5-47FA-B5B4-EA3003D7CE88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedDTOs", "SharedDTOs\SharedDTOs.csproj", "{CD7E6511-15A6-4E1D-BD8A-248EF2DD2360}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9EC3F214-8BA5-47FA-B5B4-EA3003D7CE88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EC3F214-8BA5-47FA-B5B4-EA3003D7CE88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EC3F214-8BA5-47FA-B5B4-EA3003D7CE88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EC3F214-8BA5-47FA-B5B4-EA3003D7CE88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD7E6511-15A6-4E1D-BD8A-248EF2DD2360}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD7E6511-15A6-4E1D-BD8A-248EF2DD2360}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD7E6511-15A6-4E1D-BD8A-248EF2DD2360}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD7E6511-15A6-4E1D-BD8A-248EF2DD2360}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B9B966D9-2F56-42FD-AD63-A8D3E88239A6}
+	EndGlobalSection
+EndGlobal
