@@ -7,6 +7,9 @@ namespace TicketingSystem.DataAccess.UnitOfWork
         IUserRepository Users { get; }
         ITicketRepository Tickets { get; }
         IProductRepository Products { get; }
+        ICommentRepository Comments { get;}
+        IAttachmentRepository Attachments { get; }
+        ITicketHistoryRepository TicketsHistory { get; }
         int Complete();
     }
 }

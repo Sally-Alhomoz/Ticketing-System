@@ -18,6 +18,9 @@ namespace TicketingSystem.DataAccess.UnitOfWork
         public IUserRepository Users { get; private set; }
         public ITicketRepository Tickets { get; private set; }
         public IProductRepository Products { get; private set; }
+        public ICommentRepository Comments { get; private set; }
+        public IAttachmentRepository Attachments { get; private set; }
+        public ITicketHistoryRepository TicketsHistory { get; private set; }
 
         public UnitOfWork(TicketingSystemDBContext db, ILoggerFactory logger)
         {
@@ -27,10 +30,16 @@ namespace TicketingSystem.DataAccess.UnitOfWork
             var userLogger = _logger.CreateLogger<UserRepository>();
             var ticketLogger = _logger.CreateLogger<TicketRepository>();
             var productLogger = _logger.CreateLogger<ProductRepository>();
+            var commentLogger = _logger.CreateLogger<CommentRepository>();
+            var attachmentLogger = _logger.CreateLogger<AttachmentRepository>();
+            var ticketHistoryLogger = _logger.CreateLogger<TicketHistoryRepository>();
 
             Users = new UserRepository(_db, userLogger);
             Tickets = new TicketRepository(_db, ticketLogger);
             Products = new ProductRepository(_db, productLogger);
+            Comments = new CommentRepository(_db, commentLogger);
+            Attachments = new AttachmentRepository(_db, attachmentLogger);
+            TicketsHistory = new TicketHistoryRepository(_db, ticketHistoryLogger);
 
         }
 
