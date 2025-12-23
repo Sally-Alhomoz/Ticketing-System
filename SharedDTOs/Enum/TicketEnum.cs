@@ -6,7 +6,8 @@
         InProgress = 1,
         Resolved = 2,
         Closed = 3,
-        Reopened = 4
+        Reopened = 4,
+        Deleted=5
     }
 
     public enum TicketPriority
