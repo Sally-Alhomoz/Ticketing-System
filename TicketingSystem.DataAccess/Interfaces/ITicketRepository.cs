@@ -8,8 +8,7 @@ namespace TicketingSystem.DataAccess.Interfaces
         void Add(Ticket ticket);
         bool Delete(Guid id);
         List<Ticket> GetTicktes();
-        bool TicketAssignedTo(Guid ticketId, Guid userid);
-        bool UpdateStatus(Guid id, TicketStatus newStatus);
-        bool SetPriprity(Guid id, TicketPriority priority);
+        Task<Ticket?> GetTicketById(Guid ticketId);
+        void UpdateTicket(Ticket ticket);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SharedDTOs.Enum;
 using TicketingSystem.DataAccess.Interfaces;
 using TicketingSystem.DataAccess.Models;
@@ -34,7 +35,7 @@ namespace TicketingSystem.DataAccess.Repositories
                 return false;
             }
 
-            ticket.IsDeleted = true;
+            ticket.Status = TicketStatus.Deleted;
             _logger.LogInformation("ticket with id : {id} deleted successfully.", ticket.Id);
             return true;
         }
@@ -43,67 +44,31 @@ namespace TicketingSystem.DataAccess.Repositories
         {
             _logger.LogInformation("Retrieving tickets from the database.");
 
-            List<Ticket> tickets = _db.Tickets.Where(x => x.IsDeleted == false).ToList();
+            List<Ticket> tickets = _db.Tickets.Where(x => x.Status != TicketStatus.Deleted).ToList();
             _logger.LogInformation("Successfully retrieved {UserCount} tickets.", tickets.Count);
             return tickets;
         }
 
-        public bool TicketAssignedTo(Guid ticketId, Guid userid)
+        public async Task<Ticket?> GetTicketById(Guid ticketId)
         {
-            _logger.LogInformation("Assigning ticket to staff.");
+            _logger.LogInformation("Retrive ticket by id.");
 
-            var ticket = _db.Tickets.FirstOrDefault(x => x.Id == ticketId);
+            var ticket = await _db.Tickets.FirstOrDefaultAsync(x => x.Id == ticketId);
 
             if(ticket == null)
             {
                 _logger.LogWarning("Ticket not found.");
-                return false;
+                return null;
             }
 
-            if(ticket.AssignedTo == null)
-            {
-                ticket.AssignedTo = userid;
-                _logger.LogInformation("Ticket assiged successfully.");
-                return true;
-            }
-
-            _logger.LogWarning("Ticket already assiged.");
-            return false;
+            _logger.LogWarning("Ticket found.");
+            return ticket;
         }
 
-        public bool UpdateStatus(Guid id,TicketStatus newStatus)
+        public void UpdateTicket(Ticket ticket)
         {
-            _logger.LogInformation("Change ticket status.");
-
-            var ticket = _db.Tickets.FirstOrDefault(x => x.Id == id);
-
-            if (ticket == null)
-            {
-                _logger.LogWarning("Ticket not found.");
-                return false;
-            }
-
-            ticket.Status = newStatus;
-            _logger.LogInformation("Ticket status changed successfully.");
-            return true;
-        }
-
-        public bool SetPriprity (Guid id , TicketPriority priority)
-        {
-            _logger.LogInformation("Set ticket priority.");
-
-            var ticket = _db.Tickets.FirstOrDefault(x => x.Id == id);
-
-            if (ticket == null)
-            {
-                _logger.LogWarning("Ticket not found.");
-                return false;
-            }
-
-            ticket.Priority = priority;
-            _logger.LogInformation("Ticket priority set successfully.");
-            return true;
-
+            _logger.LogInformation("Updating ticket.");
+             _db.Tickets.Update(ticket);
         }
     }
 }
