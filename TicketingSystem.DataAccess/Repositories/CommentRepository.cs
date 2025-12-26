@@ -25,20 +25,20 @@ namespace TicketingSystem.DataAccess.Repositories
             _logger.LogInformation("Comment added successfully");
         }
 
-        public List<Comment> GetCommentsByTicketId(Guid ticketId)
+        public IQueryable<Comment> GetCommentsByTicketId(Guid ticketId)
         {
             _logger.LogInformation("Fetching comments for Ticket: {TicketId}", ticketId);
-            
-            var comments = _db.Comments.Where(c => c.TicketId == ticketId).OrderBy(c => c.CreateDate).ToList();
+
+            var comments = _db.Comments.Where(c => c.TicketId == ticketId);
 
             return comments;
         }
 
-        public List<Comment> GetCommentsByUserId(Guid userId)
+        public IQueryable<Comment> GetCommentsByUserId(Guid userId)
         {
             _logger.LogInformation("Fetching comments for User {userId}", userId);
 
-            var comments = _db.Comments.Where(c => c.CreatedBy == userId).OrderBy(c => c.CreateDate).ToList();
+            var comments = _db.Comments.Where(c => c.CreatedBy == userId);
 
             return comments;
         }
