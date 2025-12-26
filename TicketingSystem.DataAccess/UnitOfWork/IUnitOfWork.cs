@@ -10,6 +10,6 @@ namespace TicketingSystem.DataAccess.UnitOfWork
         ICommentRepository Comments { get;}
         IAttachmentRepository Attachments { get; }
         ITicketHistoryRepository TicketsHistory { get; }
-        int Complete();
+        Task<int> Complete();
     }
 }

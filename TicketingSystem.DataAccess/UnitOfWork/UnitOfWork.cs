@@ -43,9 +43,9 @@ namespace TicketingSystem.DataAccess.UnitOfWork
 
         }
 
-        public int Complete()
+        public async Task<int> Complete()
         {
-            return _db.SaveChanges();
+            return await _db.SaveChangesAsync();
         }
 
         public void Dispose()
