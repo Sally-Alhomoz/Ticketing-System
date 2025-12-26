@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text;
 using TicketingSystem.DataAccess.Interfaces;
@@ -17,36 +18,26 @@ namespace TicketingSystem.DataAccess.Repositories
             _logger = logger;
         }
 
-        public bool Add(User user)
+        public void Add(User user)
         {
             _logger.LogInformation("Adding user to the Database");
 
-            var exist = _db.Users.FirstOrDefault(x=> x.Id == user.Id);
+            user.Password = HashPassword(user.Password, user.Id.ToString());
+            _db.Users.Add(user);
 
-            if(exist != null)
-            {
-                _logger.LogWarning("User with Username: {Username} already exist.", user.Username);
-                return false;
-            }
-            else
-            {
-                user.Password = HashPassword(user.Password, user.Id.ToString());
-                _db.Users.Add(user);
-                _logger.LogInformation("User with ID {UserId} added successfully.", user.Id);
-                return true;
-            }
+            _logger.LogInformation("User added to the database successfully.");
         }
 
-        public List<User> GetUsers()
+        public IQueryable<User> GetUsers()
         {
             _logger.LogInformation("Retrieving users from the database.");
 
-            List<User> users = _db.Users.ToList();
-            _logger.LogInformation("Successfully retrieved {UserCount} users.", users.Count);
+            var users = _db.Users.AsNoTracking();
+            _logger.LogInformation("Successfully retrieved users.");
             return users;
         }
 
-        public bool Delete(string username)
+        public async Task<bool> Delete(string username)
         {
             _logger.LogInformation("Deleting a user from the database.");
 
@@ -61,6 +52,27 @@ namespace TicketingSystem.DataAccess.Repositories
             _db.Users.Remove(user);
             _logger.LogInformation("User with username : {Username} deleted successfully.", user.Username);
             return true;
+        }
+
+        public async Task<User?> GetByUsername(string name)
+        {
+            _logger.LogInformation("Retriving a user by username: {Username}.", name);
+
+            var user = _db.Users.FirstOrDefault(x => x.Username == name);
+            if (user != null)
+            {
+                _logger.LogInformation("User with username : {Username} found.", name);
+            }
+            else
+            {
+                _logger.LogWarning("No user Found");
+            }
+            return user;
+        }
+
+        public void Update(User user)
+        {
+            _db.Users.Update(user);
         }
 
         private string HashPassword(string pass, string id)
@@ -78,7 +90,7 @@ namespace TicketingSystem.DataAccess.Repositories
             return Convert.ToBase64String(hashed);
         }
 
-        public bool VerifyPassword(string pass, Guid id, string storedhash)
+        public async Task<bool> VerifyPassword(string pass, Guid id, string storedhash)
         {
             var user = _db.Users.FirstOrDefault(x => x.Id == id);
             if (user == null) return false;

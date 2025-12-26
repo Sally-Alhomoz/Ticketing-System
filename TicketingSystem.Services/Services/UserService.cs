@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using SharedDTOs;
 using SharedDTOs.Enum;
+using System.Threading.Tasks;
 using TicketingSystem.DataAccess.Models;
 using TicketingSystem.DataAccess.UnitOfWork;
 using TicketingSystem.Services.Interfaces;
@@ -18,7 +19,7 @@ namespace TicketingSystem.Services.Services
             _logger = logger;   
         }
 
-        public void Add(NewUserDto u)
+        public async Task Add(NewUserDto u)
         {
             _logger.LogInformation("Adding user");
 
@@ -36,40 +37,40 @@ namespace TicketingSystem.Services.Services
 
             _uow.Users.Add(user);
             _logger.LogInformation("User added to the repository");
-            _uow.Complete();
+            await _uow.Complete();
         }
 
-        public bool Validatelogin(LoginDto user)
+        public async Task<bool> Validatelogin(LoginDto user)
         {
             _logger.LogInformation("Validating login for username: {Username}", user.Username);
 
-            var exist = _uow.Users.GetByUsername(user.Username);
+            var exist =await _uow.Users.GetByUsername(user.Username);
             if (exist == null)
             {
                 _logger.LogWarning("Login failed. Username not found: {Username}", user.Username);
                 return false;
             }
 
-            bool flag = VerifyPassword(user.Password, exist.Id, exist.Password);
+            bool flag = await VerifyPassword(user.Password, exist.Id, exist.Password);
             if (flag)
             {
                 exist.Status = UserStatus.Active;
-                _uow.Users.UpdateStatus(exist);
+                _uow.Users.Update(exist);
                 _logger.LogInformation("Login successful for username: {Username}", user.Username);
             }
             else
             {
                 _logger.LogWarning("Login failed for username: {Username}", user.Username);
             }
-            _uow.Complete();
+            await _uow.Complete();
             return flag;
 
         }
 
-        public bool VerifyPassword(string pass, Guid id, string storedhash)
+        public async Task<bool> VerifyPassword(string pass, Guid id, string storedhash)
         {
             _logger.LogInformation("Verifying password for user ID {UserId}.", id);
-            var hashed = _uow.Users.VerifyPassword(pass, id, storedhash);
+            var hashed =await _uow.Users.VerifyPassword(pass, id, storedhash);
 
             if (hashed)
             {
@@ -81,24 +82,24 @@ namespace TicketingSystem.Services.Services
         }
 
 
-        public string Delete(string username)
+        public async Task<bool> Delete(string username)
         {
             _logger.LogInformation("Deleting a user.");
 
-            var flag = _uow.Users.Delete(username);
+            var flag = await _uow.Users.Delete(username);
 
             if (flag)
             {
-                _uow.Complete();
+                await _uow.Complete();
                 _logger.LogInformation("Deleting a user with username : {Username} successfully.", username);
-                return "User deleted successfully";
+                return true;
             }
 
             _logger.LogInformation("Deleting a user with username : {Username} Failed.", username);
-            return "Failed to delete user";
+            return false;
         }
 
-        public (List<UserDto> users, int totalCount) GetUsersPaged(
+        public async Task<(List<UserDto> users, int totalCount)> GetUsersPaged(
            int page = 1,
            int pageSize = 10,
            string search = "",
