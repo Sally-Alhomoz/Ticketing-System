@@ -32,7 +32,7 @@ namespace TicketingSystem.Services.Services
 
             _uow.TicketsHistory.Add(record);
             _logger.LogInformation("Ticket record added successfully");
-            _uow.Complete();
+            await _uow.Complete();
         }
 
         public async Task<List<TicketHistoryDto>?> GetTicketHistoryById(Guid ticketId)
