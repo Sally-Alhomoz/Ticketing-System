@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using TicketingSystem.DataAccess.Interfaces;
 using TicketingSystem.DataAccess.Models;
@@ -23,18 +24,25 @@ namespace TicketingSystem.DataAccess.Repositories
             _logger.LogInformation("Ticket record added successfully");
         }
 
-        public List<TicketHistory> GetTicketHistoryByTicketId(Guid ticketId)
+        public async Task<List<TicketHistory>?> GetTicketHistoryByTicketId(Guid ticketId)
         {
             _logger.LogInformation("Fetching a ticket history record from the database.");
-            var history = _db.TicketsHistory.Where(x => x.TicketId == ticketId).ToList();
+            var history =_db.TicketsHistory
+                .Include(h=>h.ChangedByUser)
+                .Include(h=>h.Ticket).Where(x => x.TicketId == ticketId)
+                .OrderByDescending(h => h.ChangeDate) 
+                .ToList(); 
 
             return history;
         }
 
-        public TicketHistory GetLatestForTicket(Guid ticketId)
+        public async Task<TicketHistory?> GetLatestForTicket(Guid ticketId)
         {
             _logger.LogInformation("Fetching recent ticket history record from the database.");
-            var history = _db.TicketsHistory.Where(x => x.TicketId == ticketId).OrderByDescending(h => h.ChangeDate).FirstOrDefault();
+            var history = _db.TicketsHistory
+                .Where(x => x.TicketId == ticketId)
+                .OrderByDescending(h => h.ChangeDate)
+                .FirstOrDefault();
             return history;
         }
     }

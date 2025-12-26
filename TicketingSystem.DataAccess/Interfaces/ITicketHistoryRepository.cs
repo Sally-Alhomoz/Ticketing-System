@@ -7,7 +7,7 @@ namespace TicketingSystem.DataAccess.Interfaces
     public interface ITicketHistoryRepository
     {
         void Add(TicketHistory record);
-        List<TicketHistory> GetTicketHistoryByTicketId(Guid ticketId);
+        Task<List<TicketHistory>> GetTicketHistoryByTicketId(Guid ticketId);
         Task<TicketHistory?> GetLatestForTicket(Guid ticketId);
     }
 }
