@@ -10,6 +10,8 @@ namespace TicketingSystem.DataAccess.Models
         public DateTime ChangeDate { get; set; }
         public TicketStatus NewStatus { get; set; }
         public Guid TicketId { get; set; }
+        public Ticket Ticket { get; set; }
         public Guid ChangedBy { get; set; }
+        public User ChangedByUser { get; set; }
     }
 }
