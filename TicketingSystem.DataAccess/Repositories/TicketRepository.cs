@@ -23,7 +23,7 @@ namespace TicketingSystem.DataAccess.Repositories
             _logger.LogInformation("Ticket added successfully");
         }
 
-        public bool Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
             _logger.LogInformation("Deleting a ticket from the database.");
 
@@ -40,12 +40,15 @@ namespace TicketingSystem.DataAccess.Repositories
             return true;
         }
 
-        public List<Ticket> GetTicktes()
+        public IQueryable<Ticket> GetTicktes()
         {
             _logger.LogInformation("Retrieving tickets from the database.");
 
-            List<Ticket> tickets = _db.Tickets.Where(x => x.Status != TicketStatus.Deleted).ToList();
-            _logger.LogInformation("Successfully retrieved {UserCount} tickets.", tickets.Count);
+            var tickets = _db.Tickets.Where(x => x.Status != TicketStatus.Deleted)
+                .Include(t => t.product)
+                .Include(t => t.Creator)
+                .Include(t => t.AssignedUser);
+            _logger.LogInformation("Successfully retrieved tickets.");
             return tickets;
         }
 
@@ -53,7 +56,10 @@ namespace TicketingSystem.DataAccess.Repositories
         {
             _logger.LogInformation("Retrive ticket by id.");
 
-            var ticket = await _db.Tickets.FirstOrDefaultAsync(x => x.Id == ticketId);
+            var ticket = await _db.Tickets.Include(t=> t.Creator)
+                .Include(t=>t.AssignedUser)
+                .Include(t=> t.product)
+                .FirstOrDefaultAsync(x => x.Id == ticketId);
 
             if(ticket == null)
             {

@@ -5,7 +5,7 @@ namespace TicketingSystem.DataAccess.Interfaces
     public interface IProductRepository
     {
         void Add(Product product);
-        bool Delete(int id);
-        List<Product> GetProducts();
+        Task <bool> Delete(int id);
+        IQueryable<Product> GetProducts();
     }
 }

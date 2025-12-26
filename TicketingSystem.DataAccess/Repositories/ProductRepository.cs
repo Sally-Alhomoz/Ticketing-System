@@ -23,7 +23,7 @@ namespace TicketingSystem.DataAccess.Repositories
             _logger.LogInformation("Product added successfully");
         }
 
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
             _logger.LogInformation("Deleting a product from the database.");
 
@@ -40,12 +40,12 @@ namespace TicketingSystem.DataAccess.Repositories
             return true;
         }
 
-        public List<Product> GetProducts()
+        public IQueryable<Product> GetProducts()
         {
             _logger.LogInformation("Retrieving products from the database.");
 
-            List<Product> products = _db.Products.Where(x => x.IsDeleted == false).ToList();
-            _logger.LogInformation("Successfully retrieved {UserCount} products.", products.Count);
+            var products = _db.Products.Where(x => x.IsDeleted == false);
+            _logger.LogInformation("Successfully retrieved products.");
             return products;
         }
     }
