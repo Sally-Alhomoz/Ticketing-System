@@ -10,7 +10,8 @@ namespace TicketingSystem.DataAccess.Models
 
         public DateTime CreateDate { get; set; }
         public Guid CreatedBy { get; set; } 
-
+        public User CreatedByUser { get; set; }
         public Guid TicketId { get; set; } 
+        public Ticket Ticket { get; set; }
     }
 }
