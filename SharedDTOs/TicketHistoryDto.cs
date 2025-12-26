@@ -10,6 +10,6 @@ namespace SharedDTOs
         public Guid TicketId { get; set; }
         public string TicketTitle { get; set; }
         public Guid ChangedBy { get; set; }
-        public string ChangedyFullName { get; set; }
+        public string ChangedByFullName { get; set; }
     }
 }
