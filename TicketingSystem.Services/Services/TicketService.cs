@@ -39,7 +39,7 @@ namespace TicketingSystem.Services.Services
 
             _uow.Tickets.Add(ticket);
             _logger.LogInformation("Ticket added to the repository");
-            _uow.Complete();
+            await _uow.Complete();
         }
 
         public async Task<bool> AssignTicket(Guid ticketId, Guid userid)
@@ -72,7 +72,7 @@ namespace TicketingSystem.Services.Services
 
             _uow.Tickets.UpdateTicket(ticket);
             _logger.LogInformation("Ticket assigned successfully");
-            _uow.Complete();
+            await _uow.Complete();
             return true;
         }
 
@@ -105,7 +105,7 @@ namespace TicketingSystem.Services.Services
             });
 
             _uow.Tickets.UpdateTicket(ticket);
-            _uow.Complete();
+            await _uow.Complete();
             _logger.LogInformation("Ticket status updated from {old} to {new} successfully.",oldStatus,newStatus);
             return true;
         }
@@ -126,7 +126,7 @@ namespace TicketingSystem.Services.Services
 
             _logger.LogInformation("Ticket priority has been set successfully.");
             _uow.Tickets.UpdateTicket(ticket);
-            _uow.Complete();
+            await _uow.Complete();
             return true;
         }
 
@@ -142,7 +142,7 @@ namespace TicketingSystem.Services.Services
                 return false;
             }
 
-            _uow.Complete();
+            await _uow.Complete();
             _logger.LogInformation("ticket with id : {id} deleted successfully.", ticketId);
             return true;
         }
