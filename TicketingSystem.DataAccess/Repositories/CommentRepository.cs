@@ -1,5 +1,6 @@
 ﻿
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using TicketingSystem.DataAccess.Interfaces;
@@ -29,7 +30,10 @@ namespace TicketingSystem.DataAccess.Repositories
         {
             _logger.LogInformation("Fetching comments for Ticket: {TicketId}", ticketId);
 
-            var comments = _db.Comments.Where(c => c.TicketId == ticketId);
+            var comments = _db.Comments
+                .Include(c=>c.CreatedByUser)
+                .Include(c=>c.Ticket)
+                .Where(c => c.TicketId == ticketId);
 
             return comments;
         }
@@ -38,7 +42,10 @@ namespace TicketingSystem.DataAccess.Repositories
         {
             _logger.LogInformation("Fetching comments for User {userId}", userId);
 
-            var comments = _db.Comments.Where(c => c.CreatedBy == userId);
+            var comments = _db.Comments
+                .Include(c => c.CreatedByUser)
+                .Include(c => c.Ticket)
+                .Where(c => c.CreatedBy == userId);
 
             return comments;
         }
