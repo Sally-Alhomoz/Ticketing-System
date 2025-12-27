@@ -46,7 +46,6 @@ namespace TicketingSystem.Services.Services
                 Message = c.Message,
                 CreateDate = c.CreateDate,
                 TicketId = c.TicketId,
-                TicketTitle = c.Ticket.Title,
                 CreatedBy = c.CreatedBy,
                 CreatedByFullName = c.CreatedByUser.FirstName + " " + c.CreatedByUser.LastName
             }).ToList();
@@ -73,14 +72,13 @@ namespace TicketingSystem.Services.Services
                 Message = c.Message,
                 CreateDate = c.CreateDate,
                 TicketId = c.TicketId,
-                TicketTitle = c.Ticket.Title,
                 CreatedBy = c.CreatedBy,
                 CreatedByFullName = c.CreatedByUser.FirstName + " " + c.CreatedByUser.LastName
             }).ToList();
 
             if (dto.Count == 0 )
             {
-                _logger.LogInformation("No comments found for Ticket {UserId}", userId);
+                _logger.LogWarning("No comments found for Ticket {UserId}", userId);
             }
 
             _logger.LogInformation("Comments retrieved successfully.");

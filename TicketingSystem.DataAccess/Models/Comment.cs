@@ -12,6 +12,5 @@ namespace TicketingSystem.DataAccess.Models
         public Guid CreatedBy { get; set; } 
         public User CreatedByUser { get; set; }
         public Guid TicketId { get; set; } 
-        public Ticket Ticket { get; set; }
     }
 }

@@ -32,7 +32,6 @@ namespace TicketingSystem.DataAccess.Repositories
 
             var comments = _db.Comments
                 .Include(c=>c.CreatedByUser)
-                .Include(c=>c.Ticket)
                 .Where(c => c.TicketId == ticketId);
 
             return comments;
@@ -44,7 +43,6 @@ namespace TicketingSystem.DataAccess.Repositories
 
             var comments = _db.Comments
                 .Include(c => c.CreatedByUser)
-                .Include(c => c.Ticket)
                 .Where(c => c.CreatedBy == userId);
 
             return comments;
