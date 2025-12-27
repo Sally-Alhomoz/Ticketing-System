@@ -23,10 +23,21 @@ namespace TicketingSystem.DataAccess.Repositories
             _logger.LogInformation("Attachment added successfully");
         }
 
+        public async Task<Attachment> GetAttachmentById(Guid id)
+        {
+            _logger.LogInformation("Retrieving attachment with id {Id}", id);
+
+            var attachment = _db.Attachments.FirstOrDefault(a => a.Id == id);
+
+            return attachment;
+        }
+
         public IQueryable<Attachment> GetByTicketId(Guid ticketId)
         {
             _logger.LogInformation("Retrieving attachments for Ticket {TicketId}", ticketId);
-            return _db.Attachments.Where(a => a.TicketId == ticketId);
+            return _db.Attachments
+                .Include(a=> a.UploadedByUser)
+                .Where(a => a.TicketId == ticketId);
         }
     }
 }
