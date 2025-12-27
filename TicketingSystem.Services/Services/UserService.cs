@@ -2,6 +2,7 @@
 using SharedDTOs;
 using SharedDTOs.Enum;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using TicketingSystem.DataAccess.Models;
 using TicketingSystem.DataAccess.UnitOfWork;
 using TicketingSystem.Services.Interfaces;
@@ -38,6 +39,34 @@ namespace TicketingSystem.Services.Services
             _uow.Users.Add(user);
             _logger.LogInformation("User added to the repository");
             await _uow.Complete();
+        }
+
+        public async Task<UserDto?> GetUserByUsername(string username)
+        {
+            _logger.LogInformation("Retriving a user by username: {Username}.", username);
+
+            var user = await _uow.Users.GetByUsername(username);
+
+            if(user == null)
+            {
+                _logger.LogWarning("No user found with username: {Username}", username);
+                return null;
+            }
+
+            var dto = new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Status = user.Status,
+                Email = user.Email,
+                Role = user.Role
+            };
+
+            _logger.LogInformation("User found successfully.");
+            return dto;
+
         }
 
         public async Task<bool> Validatelogin(LoginDto user)
@@ -79,6 +108,26 @@ namespace TicketingSystem.Services.Services
             }
             _logger.LogWarning("Verifying password Failed");
             return false;
+        }
+
+        public async Task<bool> SetUserInActive(string username)
+        {
+            _logger.LogInformation("Setting status for user {Username} to inactive", username);
+
+            var user = await _uow.Users.GetByUsername(username);
+
+            if(user ==null)
+            {
+                _logger.LogWarning("No user found with username: {Username}", username);
+                return false;
+            }
+
+            user.Status = UserStatus.inActive;
+            _uow.Users.Update(user);
+            await _uow.Complete();
+
+            _logger.LogInformation("User status updated successfully for {Username}", username);
+            return true;
         }
 
 
