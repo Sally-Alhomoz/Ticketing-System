@@ -9,6 +9,5 @@
         public Guid CreatedBy { get; set; }
         public string CreatedByFullName { get; set; }
         public Guid TicketId { get; set; }
-        public string TicketTitle { get; set; }
     }
 }
