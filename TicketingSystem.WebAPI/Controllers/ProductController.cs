@@ -11,13 +11,11 @@ namespace TicketingSystem.WebAPI.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productManager;
-        private readonly IConfiguration configuration;
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IProductService productManager, IConfiguration config, ILogger<ProductController> logger)
+        public ProductController(IProductService productManager, ILogger<ProductController> logger)
         {
             _productManager = productManager;
-            configuration = config;
             _logger = logger;
         }
 
