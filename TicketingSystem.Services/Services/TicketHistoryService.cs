@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SharedDTOs;
+using SharedDTOs.Enum;
 using TicketingSystem.DataAccess.Models;
 using TicketingSystem.DataAccess.UnitOfWork;
 using TicketingSystem.Services.Interfaces;
@@ -17,17 +18,17 @@ namespace TicketingSystem.Services.Services
             _logger = logger;
         }
 
-        public async Task AddRecord(TicketHistoryDto dto)
+        public async Task AddRecord(Guid ticketId, TicketStatus newStatus, Guid userId)
         {
             _logger.LogInformation("Adding a ticket record.");
 
             var record = new TicketHistory
             {
-                Id = dto.Id,
+                Id = Guid.NewGuid(),
                 ChangeDate = DateTime.UtcNow,
-                NewStatus = dto.NewStatus,
-                ChangedBy = dto.ChangedBy,
-                TicketId = dto.TicketId
+                NewStatus =newStatus,
+                ChangedBy = userId,
+                TicketId = ticketId
             };
 
             _uow.TicketsHistory.Add(record);
@@ -41,7 +42,7 @@ namespace TicketingSystem.Services.Services
 
             var records = await _uow.TicketsHistory.GetTicketHistoryByTicketId(ticketId);
 
-            if(records ==null)
+            if (records == null) 
             {
                 _logger.LogWarning("No records fiund for this ticket.");
                 return null;

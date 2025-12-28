@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SharedDTOs;
 using SharedDTOs.Enum;
-using System.Net.Sockets;
-using TicketingSystem.DataAccess.Interfaces;
 using TicketingSystem.DataAccess.Models;
 using TicketingSystem.DataAccess.UnitOfWork;
 using TicketingSystem.Services.Interfaces;
@@ -20,9 +18,10 @@ namespace TicketingSystem.Services.Services
             _logger = logger;
         }
 
-        public async Task Add(TicketDto t)
+        public async Task Add(CreateTicketDto t,Guid CreateById )
         {
             _logger.LogInformation("Adding a ticket");
+
 
             var ticket = new Ticket
             {
@@ -31,9 +30,9 @@ namespace TicketingSystem.Services.Services
                 Description = t.Description,
                 Status = TicketStatus.New,
                 CreateDate=DateTime.UtcNow,
-                Priority = t.Priority,
+                Priority = TicketPriority.Medium, //by defualt
                 productId = t.productId,
-                CreatedBy = t.CreatedBy,
+                CreatedBy = CreateById,
                 AssignedTo = null
             };
 
