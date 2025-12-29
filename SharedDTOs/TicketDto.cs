@@ -16,6 +16,7 @@ namespace SharedDTOs
         public string CreatedByFullName { get; set; }
         public string AssignedToFullName { get; set; }
         public string ProductName { get; set; }
+        public List<AttachmentDto> Attachments { get; set; } = new();
 
     }
 }
