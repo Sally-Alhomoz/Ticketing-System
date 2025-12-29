@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SharedDTOs;
+using TicketingSystem.DataAccess.Models;
 using TicketingSystem.Services.Interfaces;
 
 namespace TicketingSystem.WebAPI.Controllers
@@ -24,13 +25,21 @@ namespace TicketingSystem.WebAPI.Controllers
         /// </summary>
         [Authorize]
         [HttpPost("Add")]
-        public async Task<IActionResult> AddProduct(ProductDto product)
+        public async Task<IActionResult> Create(string name)
         {
             _logger.LogInformation("Adding product.");
 
-            await _productManager.AddProduct(product);
-            _logger.LogInformation("Product added successfully.");
-            return Ok("Product added successfully.");
+            try
+            {
+                await _productManager.AddProduct(name);
+                _logger.LogInformation("Product added successfully.");
+                return Ok("Product added successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while adding a product.");
+                return StatusCode(500, "An internal error occurred while creating the product.");
+            }
         }
 
         /// <summary>
