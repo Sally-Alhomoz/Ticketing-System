@@ -17,14 +17,14 @@ namespace TicketingSystem.Services.Services
             _logger = logger;
         }
 
-        public async Task AddProduct(ProductDto dto)
+        public async Task AddProduct(string name)
         {
             _logger.LogInformation("Adding a product.");
 
             var product = new Product
             {
-                ProductName = dto.ProductName,
-                IsDeleted=false
+                ProductName = name,
+                IsDeleted = false
             };
 
             _uow.Products.Add(product);
@@ -73,7 +73,8 @@ namespace TicketingSystem.Services.Services
             query = (sortBy?.ToLower(), sortDirection?.ToLower()) switch
             {
                 ("productName", "desc") => query.OrderByDescending(p => p.ProductName),
-                ("productName", _) => query.OrderBy(p => p.ProductName)
+                ("productName", "asc") => query.OrderBy(p => p.ProductName),
+                _ => query.OrderBy(p => p.ProductName)
             };
 
             int totalCount = query.Count();
