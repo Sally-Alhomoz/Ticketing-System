@@ -27,7 +27,10 @@ namespace TicketingSystem.DataAccess.Repositories
         {
             _logger.LogInformation("Retrieving attachment with id {Id}", id);
 
-            var attachment = _db.Attachments.FirstOrDefault(a => a.Id == id);
+            var attachment = _db.Attachments
+                .Include(a=>a.UploadedByUser)
+                .Include(a=>a.Ticket)
+                .FirstOrDefault(a => a.Id == id);
 
             return attachment;
         }
@@ -36,7 +39,7 @@ namespace TicketingSystem.DataAccess.Repositories
         {
             _logger.LogInformation("Retrieving attachments for Ticket {TicketId}", ticketId);
             return _db.Attachments
-                .Include(a=> a.UploadedByUser)
+                .Include(a=>a.UploadedByUser)
                 .Where(a => a.TicketId == ticketId);
         }
     }
