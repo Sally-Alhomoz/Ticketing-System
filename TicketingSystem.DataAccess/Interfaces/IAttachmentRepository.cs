@@ -7,5 +7,6 @@ namespace TicketingSystem.DataAccess.Interfaces
         void Add(Attachment attachment);
         Task<Attachment> GetAttachmentById(Guid id);
         IQueryable<Attachment> GetByTicketId(Guid ticketId);
+        IQueryable<Attachment> GetByCommentId(Guid commentId);
     }
 }

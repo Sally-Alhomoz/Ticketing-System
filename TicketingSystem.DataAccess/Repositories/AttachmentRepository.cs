@@ -42,5 +42,13 @@ namespace TicketingSystem.DataAccess.Repositories
                 .Include(a=>a.UploadedByUser)
                 .Where(a => a.TicketId == ticketId);
         }
+
+        public IQueryable<Attachment> GetByCommentId(Guid commentId)
+        {
+            _logger.LogInformation("Retrieving attachments for comment {CommentId}", commentId);
+            return _db.Attachments
+                .Include(a => a.UploadedByUser)
+                .Where(a => a.CommentId == commentId);
+        }
     }
 }
