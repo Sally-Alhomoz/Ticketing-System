@@ -40,6 +40,8 @@ namespace TicketingSystem.DataAccess.Repositories
         {
             _logger.LogInformation("Fetching recent ticket history record from the database.");
             var history = _db.TicketsHistory
+                .Include(h=>h.ChangedByUser)
+                .Include(h=>h.Ticket)
                 .Where(x => x.TicketId == ticketId)
                 .OrderByDescending(h => h.ChangeDate)
                 .FirstOrDefault();
