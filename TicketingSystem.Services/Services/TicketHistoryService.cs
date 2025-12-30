@@ -22,16 +22,27 @@ namespace TicketingSystem.Services.Services
         {
             _logger.LogInformation("Adding a ticket record.");
 
+            var ticket = await _uow.Tickets.GetTicketById(ticketId);
+
+            if (ticket == null)
+            {
+                _logger.LogError("Could not update status because Ticket was not found.");
+                return;
+            }
+            
+            ticket.Status = newStatus;
+
             var record = new TicketHistory
             {
                 Id = Guid.NewGuid(),
-                ChangeDate = DateTime.UtcNow,
+                ChangeDate = DateTime.Now,
                 NewStatus =newStatus,
                 ChangedBy = userId,
                 TicketId = ticketId
             };
 
             _uow.TicketsHistory.Add(record);
+            _uow.Tickets.UpdateTicket(ticket);
             _logger.LogInformation("Ticket record added successfully");
             await _uow.Complete();
         }
