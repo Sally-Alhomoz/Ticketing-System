@@ -10,12 +10,16 @@ namespace TicketingSystem.Services.Services
     public class TicketService : ITicketService
     {
         private readonly IUnitOfWork _uow;
+        private readonly IAttachmentService _attachmentService;
+        private readonly ICommentService _commentService;
         private readonly ILogger<TicketService> _logger;
 
-        public TicketService(IUnitOfWork uow ,ILogger<TicketService> logger)
+        public TicketService(IUnitOfWork uow ,ILogger<TicketService> logger, IAttachmentService attachmentService, ICommentService commentService)
         {
             _uow = uow;
             _logger = logger;
+            _attachmentService = attachmentService;
+            _commentService = commentService;
         }
 
         public async Task Add(CreateTicketDto t,Guid CreateById )
@@ -29,14 +33,20 @@ namespace TicketingSystem.Services.Services
                 Title = t.Title,
                 Description = t.Description,
                 Status = TicketStatus.New,
-                CreateDate=DateTime.UtcNow,
-                Priority = TicketPriority.Medium, //by defualt
+                CreateDate=DateTime.Now,
+                Priority = TicketPriority.Medium, 
                 productId = t.productId,
                 CreatedBy = CreateById,
                 AssignedTo = null
             };
 
             _uow.Tickets.Add(ticket);
+
+            if (t.Files != null && t.Files.Any())
+            {
+                await _attachmentService.AddAttachments(t.Files, CreateById, ticket.Id);
+            }
+
             _logger.LogInformation("Ticket added to the repository");
             await _uow.Complete();
         }
@@ -64,7 +74,7 @@ namespace TicketingSystem.Services.Services
             _uow.TicketsHistory.Add(new TicketHistory
             {
                 TicketId = ticket.Id,
-                ChangeDate = DateTime.Now,
+                ChangeDate = DateTime.UtcNow,
                 NewStatus = ticket.Status,
                 ChangedBy = userid
             });
@@ -158,6 +168,9 @@ namespace TicketingSystem.Services.Services
                 return null;
             }
 
+            var attachments = await _attachmentService.GetByTicketId(ticketId);
+            var comments = await _commentService.GetCommentsByTicketId(ticketId);
+
             var dto = new TicketDto
             {
                 Id = ticketId,
@@ -170,8 +183,38 @@ namespace TicketingSystem.Services.Services
                 CreatedBy = ticket.CreatedBy,
                 CreatedByFullName = ticket.Creator.FirstName + " " + ticket.Creator.LastName,
                 AssignedTo = ticket.AssignedTo,
-                AssignedToFullName = ticket.AssignedTo != null? ticket.AssignedUser.FirstName + " " + ticket.AssignedUser.LastName: "Unassigned",
-                CreateDate = ticket.CreateDate
+                AssignedToFullName = ticket.AssignedTo != null ? ticket.AssignedUser.FirstName + " " + ticket.AssignedUser.LastName : "Unassigned",
+                CreateDate = ticket.CreateDate,
+                Attachments = attachments.Where(a=>a.CommentId==null).Select(a => new AttachmentDto
+                {
+                    Id = a.Id,
+                    CreateDate = a.CreateDate,
+                    FileName = a.FileName,
+                    FileUrl = $"/api/Attachments/Download/{a.Id}",
+                    UploadedBy = a.UploadedBy,
+                    UploadedByFullName = a.UploadedByFullName,
+                    TicketId =ticketId
+                }).ToList(),
+                Comments = comments.Select(c => new CommentDto
+                {
+                    Id = c.Id,
+                    TicketId = ticketId,
+                    Message = c.Message,
+                    CreateDate = c.CreateDate,
+                    CreatedBy = c.CreatedBy,
+                    CreatedByFullName = c.CreatedByFullName,
+                    Attachments = attachments.Where(a => a.CommentId == c.Id).Select(a => new AttachmentDto
+                    {
+                        Id = a.Id,
+                        CreateDate = a.CreateDate,
+                        FileName = a.FileName,
+                        FileUrl = $"/api/Attachments/Download/{a.Id}",
+                        UploadedBy = a.UploadedBy,
+                        UploadedByFullName = a.UploadedByFullName,
+                        TicketId = ticketId,
+                        CommentId=c.Id
+                    }).ToList(),
+                }).ToList()
             };
 
             _logger.LogInformation("Ticket retrieved successfully");
@@ -240,7 +283,7 @@ namespace TicketingSystem.Services.Services
                     CreatedByFullName = t.Creator.FirstName + " " + t.Creator.LastName,
                     AssignedToFullName = t.AssignedTo != null
                     ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : "Unassigned",
-                    ProductName =t.product.ProductName
+                    ProductName =t.product.ProductName,
                 })
                 .ToList();
 
