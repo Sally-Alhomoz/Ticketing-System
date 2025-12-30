@@ -1,4 +1,5 @@
 ﻿using SharedDTOs.Enum;
+using System.Xml.Linq;
 
 namespace SharedDTOs
 {
@@ -17,6 +18,7 @@ namespace SharedDTOs
         public string AssignedToFullName { get; set; }
         public string ProductName { get; set; }
         public List<AttachmentDto> Attachments { get; set; } = new();
+        public List<CommentDto> Comments { get; set; } = new();
 
     }
 }
