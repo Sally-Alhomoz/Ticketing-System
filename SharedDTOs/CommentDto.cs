@@ -1,4 +1,6 @@
-﻿namespace SharedDTOs
+﻿using Microsoft.AspNetCore.Http;
+
+namespace SharedDTOs
 {
     public class CommentDto
     {
@@ -9,5 +11,6 @@
         public Guid CreatedBy { get; set; }
         public string CreatedByFullName { get; set; }
         public Guid TicketId { get; set; }
+        public List<AttachmentDto> Attachments { get; set; } = new();
     }
 }
