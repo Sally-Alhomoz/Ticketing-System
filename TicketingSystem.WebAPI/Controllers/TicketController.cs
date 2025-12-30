@@ -25,15 +25,11 @@ namespace TicketingSystem.WebAPI.Controllers
         {
             get
             {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                                  ?? User.FindFirst("sub")?.Value;
+                var claimValue = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                                 ?? User.FindFirstValue("sub")
+                                 ?? throw new UnauthorizedAccessException("User ID not found in token.");
 
-                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-                {
-                    throw new UnauthorizedAccessException("Invalid or missing user ID in token.");
-                }
-
-                return userId;
+                return Guid.Parse(claimValue);
             }
         }
 
@@ -42,7 +38,7 @@ namespace TicketingSystem.WebAPI.Controllers
         /// </summary>
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create(CreateTicketDto ticket)
+        public async Task<IActionResult> Create([FromForm] CreateTicketDto ticket)
         {
             _logger.LogInformation("Post called tp add a ticket.");
 
@@ -88,7 +84,7 @@ namespace TicketingSystem.WebAPI.Controllers
         {
             _logger.LogInformation("Patch called to assign ticket to support staff.");
 
-            var exist =await _ticketManager.GetTicketById(ticketId);
+            var exist = await _ticketManager.GetTicketById(ticketId);
 
             if (exist == null)
             {
@@ -137,7 +133,7 @@ namespace TicketingSystem.WebAPI.Controllers
 
             var result = await _ticketManager.UpdateTicketStatus(ticketId, newStatus, CurrentUserId);
 
-            if(!result)
+            if (!result)
             {
                 _logger.LogWarning("Ticket not found");
                 return NotFound("Ticket not found.");
