@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SharedDTOs;
 using SharedDTOs.Enum;
+using Swashbuckle.AspNetCore.Annotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -25,10 +26,13 @@ namespace TicketingSystem.WebAPI.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Login to your account.
-        /// </summary>
+
         [HttpPost("Login")]
+        [SwaggerOperation(
+            Summary = "Login to your account.",
+            Description = "Validates credentials and generates a Bearer token required for all protected endpoints.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Login successfully, token returned")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Invalid username or password")]
         public async Task<IActionResult> Login(LoginDto login)
         {
             _logger.LogInformation("POST called to login");
@@ -82,10 +86,13 @@ namespace TicketingSystem.WebAPI.Controllers
             });
         }
 
-        /// <summary>
-        /// Register - Sign Up.
-        /// </summary>
+
         [HttpPost("Register")]
+        [SwaggerOperation(
+            Summary = "Register a new account,.",
+            Description = "Create new account in the system.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User registered successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Username already exists or passwords do not match")]
         public async Task<IActionResult> Create(NewUserDto user)
         {
             _logger.LogInformation("POST called to register a new user");
@@ -108,11 +115,15 @@ namespace TicketingSystem.WebAPI.Controllers
             return Ok("User registered successfully");
         }
 
-        /// <summary>
-        /// Log out of your account.
-        /// </summary>
         [HttpPost("logout")]
         [Authorize]
+        [SwaggerOperation(
+            Summary = "Log out the current user",
+            Description = "Sets the user status to Inactive. Requires a valid JWT token.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "User logged out successfully")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "User session not found")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "User not found")]
         public async Task<IActionResult> Logout()
         {
             var username = User.Identity?.Name;
@@ -136,14 +147,17 @@ namespace TicketingSystem.WebAPI.Controllers
                 }
             }
 
-            return BadRequest("User not found.");
+            return NotFound("User not found.");
         }
 
-        ///<summary>
-        ///Get users info.
-        ///</summary>
         [HttpGet("GetAccountInfo")]
         [Authorize]
+        [SwaggerOperation(
+            Summary = "Get profile info for the logged-in user",
+            Description = "Returns the full user profile based on the identity provided in the JWT token.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Profile info retrieved successfully")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "User not found")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
         public async Task<IActionResult> GetAccountInfo()
         {
 
@@ -162,12 +176,13 @@ namespace TicketingSystem.WebAPI.Controllers
             return Ok(user);
         }
 
-
-        /// <summary>
-        /// Get Users.
-        /// </summary>
         [HttpGet]
         [Authorize]
+        [SwaggerOperation(
+            Summary = "List all registered users.",
+            Description = "Returns a paginated list of all users. restricted to administrative roles.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "List of users retrieved successfully")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
         public async Task<IActionResult> Read(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,

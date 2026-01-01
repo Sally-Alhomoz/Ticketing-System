@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TicketingSystem.Services.Interfaces;
 
 namespace TicketingSystem.WebAPI.Controllers
@@ -28,11 +29,14 @@ namespace TicketingSystem.WebAPI.Controllers
         }
 
 
-        /// <summary>
-        /// Download a file.
-        /// </summary>
         [Authorize]
         [HttpGet("Download/{id}")]
+        [SwaggerOperation(
+            Summary = "Download a file.",
+            Description = "Downloads a file by its ID. Requires Authentication")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Attachment downloaded successfully")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "No Attachmentfound with the provided ID.")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
         public async Task<IActionResult> Download(Guid id)
         {
             _logger.LogInformation("Attempting to download attachment {Id}", id);

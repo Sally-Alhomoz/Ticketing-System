@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedDTOs;
 using SharedDTOs.Enum;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 using TicketingSystem.Services.Interfaces;
 
@@ -36,11 +37,14 @@ namespace TicketingSystem.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Create new ticket history record.
-        /// </summary>
         [Authorize]
         [HttpPost]
+        [SwaggerOperation(
+            Summary = "Create a new history record",
+            Description = "Adds a status change record to a ticket. Authentication required.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "History record created successfully")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error occurred")]
         public async Task<IActionResult> Create(Guid ticketId, TicketStatus newStatus)
         {
             _logger.LogInformation("Post is called to create new ticket history.");
@@ -58,11 +62,14 @@ namespace TicketingSystem.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Get hirtory for ticket.
-        /// </summary>
         [Authorize]
         [HttpGet("GetByTicketId")]
+        [SwaggerOperation(
+            Summary = "Get full history for a ticket",
+            Description = "Retrieves a list of all status changes and updates for the specified ticket ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "History records retrieved successfully")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "No history found for the provided Ticket ID")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
         public async Task<IActionResult> GetTicketHistoryById(Guid ticketId)
         {
             _logger.LogInformation("Get called to get hirtory for ticket by ticket Id");
@@ -78,11 +85,14 @@ namespace TicketingSystem.WebAPI.Controllers
             return Ok(records);
         }
 
-        /// <summary>
-        /// Get recent hstory for ticket.
-        /// </summary>
         [Authorize]
         [HttpGet("GetRecent")]
+        [SwaggerOperation(
+            Summary = "Get the latest history record",
+            Description = "Retrieves only the most recent status update for a specific ticket.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Latest record retrieved successfully")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "No records found for this ticket")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
         public async Task<IActionResult> GetLatestForTicket(Guid ticketId)
         {
             _logger.LogInformation("Get called to get recent hirtory for ticket by ticket Id");

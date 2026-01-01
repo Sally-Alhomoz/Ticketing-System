@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedDTOs;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 using TicketingSystem.DataAccess.Models;
 using TicketingSystem.Services.Interfaces;
@@ -33,11 +34,14 @@ namespace TicketingSystem.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Create new comment.
-        /// </summary>
         [Authorize]
         [HttpPost]
+        [SwaggerOperation(
+            Summary = "Add new comment.",
+            Description = "Add new comment to ticket. Requires Authentication")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Comment added successfully")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error occurred")]
         public async Task<IActionResult> Create([FromForm] CreateCommentDto comment)
         {
             _logger.LogInformation("Post is called to create new comment.");
@@ -55,11 +59,14 @@ namespace TicketingSystem.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Get comment by ticket Id.
-        /// </summary>
         [Authorize]
         [HttpGet("ByTicketId")]
+        [SwaggerOperation(
+            Summary = "Retrieves all comments for a ticket.",
+            Description = "Retrieves all comments of a specific ticket using its ID. Requires Authentication")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Comments retrieved successfully")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "No comment found with the provided ID.")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
         public async Task<IActionResult> GetCommentByTicketId(Guid ticketId)
         {
             _logger.LogInformation("Get is called to get comment by the ticket id.");
@@ -75,11 +82,14 @@ namespace TicketingSystem.WebAPI.Controllers
             return Ok(comments);
         }
 
-        /// <summary>
-        /// Get comment by user Id.
-        /// </summary>
         [Authorize]
         [HttpGet("ByUserId")]
+        [SwaggerOperation(
+            Summary = "Retrieves all comments for a user.",
+            Description = "Retrieves all comments of a specific user using its ID. Requires Authentication")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Comments retrieved successfully")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "No comment found with the provided ID.")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
         public async Task<IActionResult> GetCommentByUserId(Guid userId)
         {
             _logger.LogInformation("Get is called to get comment by the user id.");

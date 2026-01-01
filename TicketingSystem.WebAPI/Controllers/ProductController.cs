@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SharedDTOs;
+using Swashbuckle.AspNetCore.Annotations;
 using TicketingSystem.DataAccess.Models;
 using TicketingSystem.Services.Interfaces;
 
@@ -20,11 +21,14 @@ namespace TicketingSystem.WebAPI.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Add product.
-        /// </summary>
         [Authorize]
         [HttpPost("Add")]
+        [SwaggerOperation(
+            Summary = "Add a product.",
+            Description = "Adds a new product to the system. Authentication required.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Product added successfully")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error occurred")]
         public async Task<IActionResult> Create(string name)
         {
             _logger.LogInformation("Adding product.");
@@ -42,11 +46,15 @@ namespace TicketingSystem.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Deleting a product.
-        /// </summary>
+
         [Authorize]
         [HttpDelete]
+        [SwaggerOperation(
+            Summary = "Delete a product.",
+            Description = "Delete a product from the system.. Authentication required.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Product delted successfully")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Product not found")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             _logger.LogInformation("Deleting product.");
@@ -63,11 +71,12 @@ namespace TicketingSystem.WebAPI.Controllers
             return Ok("Product Deleted successfully.");
         }
 
-        /// <summary>
-        /// Get products.
-        /// </summary>
-        [HttpGet]
         [Authorize]
+        [SwaggerOperation(
+            Summary = "List all products.",
+            Description = "Returns a paginated list of all products. restricted to administrative roles.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "List of products retrieved successfully")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
         public async Task<IActionResult> Read(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
