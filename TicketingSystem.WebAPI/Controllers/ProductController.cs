@@ -27,11 +27,20 @@ namespace TicketingSystem.WebAPI.Controllers
             Summary = "Add a product.",
             Description = "Adds a new product to the system. Authentication required.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Product added successfully")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Product already exist")]
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error occurred")]
         public async Task<IActionResult> Create(string name)
         {
             _logger.LogInformation("Adding product.");
+
+            var p = await _productManager.GetProductByName(name);
+
+            if (p != null) 
+            {
+                _logger.LogWarning("Product already exist");
+                return BadRequest("Product already exist");
+            }
 
             try
             {
@@ -72,6 +81,7 @@ namespace TicketingSystem.WebAPI.Controllers
         }
 
         [Authorize]
+        [HttpGet]
         [SwaggerOperation(
             Summary = "List all products.",
             Description = "Returns a paginated list of all products. restricted to administrative roles.")]
