@@ -49,6 +49,29 @@ namespace TicketingSystem.Services.Services
             return true;
         }
 
+        public async Task<ProductDto?> GetProductByName(string name)
+        {
+            _logger.LogInformation("Fetch product by product name.");
+
+            var p = _uow.Products.GetProducts().Where(p => p.ProductName == name).FirstOrDefault();
+
+            if(p==null)
+            {
+                _logger.LogWarning("Product not found!");
+                return null;
+            }
+
+            var product = new ProductDto
+            {
+                Id = p.Id,
+                ProductName = p.ProductName,
+                IsDeleted = p.IsDeleted
+            };
+
+            _logger.LogInformation("Product returned successfully.");
+            return product;
+        }
+
         public async Task<(List<ProductDto> products, int totalCount)> GetProductPaged(
             int page = 1,
             int pageSize = 10,
@@ -72,8 +95,12 @@ namespace TicketingSystem.Services.Services
             // FULL SORTING — every column
             query = (sortBy?.ToLower(), sortDirection?.ToLower()) switch
             {
-                ("productName", "desc") => query.OrderByDescending(p => p.ProductName),
-                ("productName", "asc") => query.OrderBy(p => p.ProductName),
+                ("productname", "desc") => query.OrderByDescending(p => p.ProductName),
+                ("productname", "asc") => query.OrderBy(p => p.ProductName),
+
+                ("id", "desc") => query.OrderByDescending(p => p.Id),
+                ("id", "asc") => query.OrderBy(p => p.Id),
+
                 _ => query.OrderBy(p => p.ProductName)
             };
 

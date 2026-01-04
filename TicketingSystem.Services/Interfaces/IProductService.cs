@@ -1,5 +1,4 @@
 ﻿using SharedDTOs;
-using System.Threading.Tasks;
 
 namespace TicketingSystem.Services.Interfaces
 {
@@ -7,6 +6,7 @@ namespace TicketingSystem.Services.Interfaces
     {
         Task AddProduct(string name);
         Task<bool> DeleteProduct(int productId);
+        Task<ProductDto?> GetProductByName(string name);
         Task<(List<ProductDto> products, int totalCount)> GetProductPaged(int page, int pageSize, string search, string sortBy, string sortDirection);
     }
 }
