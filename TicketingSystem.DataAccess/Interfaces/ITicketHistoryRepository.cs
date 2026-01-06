@@ -9,5 +9,6 @@ namespace TicketingSystem.DataAccess.Interfaces
         void Add(TicketHistory record);
         Task<List<TicketHistory>> GetTicketHistoryByTicketId(Guid ticketId);
         Task<TicketHistory?> GetLatestForTicket(Guid ticketId);
+        IQueryable<TicketHistory> GetHistories();
     }
 }
