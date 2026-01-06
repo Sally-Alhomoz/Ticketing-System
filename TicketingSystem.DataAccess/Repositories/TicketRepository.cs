@@ -67,7 +67,7 @@ namespace TicketingSystem.DataAccess.Repositories
                 return null;
             }
 
-            _logger.LogWarning("Ticket found.");
+            _logger.LogInformation("Ticket found.");
             return ticket;
         }
 

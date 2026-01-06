@@ -93,8 +93,11 @@ namespace TicketingSystem.DataAccess.Repositories
         public async Task<bool> VerifyPassword(string pass, Guid id, string storedhash)
         {
             var user = _db.Users.FirstOrDefault(x => x.Id == id);
-            if (user == null) return false;
-            _logger.LogWarning("User not found");
+            if (user == null)
+            {
+                _logger.LogWarning("User not found");
+                return false;
+            }
 
             _logger.LogDebug("Verifying password for username: {Username}", user.Username);
 
