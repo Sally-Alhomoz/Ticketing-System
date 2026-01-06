@@ -15,12 +15,14 @@ namespace TicketingSystem.WebAPI.Controllers
     public class TicketController : ControllerBase
     {
         private readonly ITicketService _ticketManager;
+        private readonly ITicketHistoryService _historyService;
         private readonly ILogger<TicketController> _logger;
 
-        public TicketController(ITicketService ticketManager, ILogger<TicketController> logger)
+        public TicketController(ITicketService ticketManager, ILogger<TicketController> logger, ITicketHistoryService historyService)
         {
             _ticketManager = ticketManager;
             _logger = logger;
+            _historyService = historyService;
         }
 
         private Guid CurrentUserId
@@ -58,6 +60,42 @@ namespace TicketingSystem.WebAPI.Controllers
                 _logger.LogError(ex, "Error occurred while adding a ticket.");
                 return StatusCode(500, "An internal error occurred while creating the ticket.");
             }
+        }
+
+        [Authorize]
+        [HttpGet("DashboardStaff")]
+        public async Task<IActionResult> GetDashBoardStaff()
+        {
+            var unAssignedCount =await  _ticketManager.GetUnAssignedTicketCount();
+            var totalTicketsCount = await _ticketManager.GetStaffTicketCount(CurrentUserId);
+            var SolvedCount =await _ticketManager.GetStatusTicketCount(CurrentUserId, TicketStatus.Resolved);
+            var inProgressCount = await _ticketManager.GetStatusTicketCount(CurrentUserId, TicketStatus.InProgress);
+
+            return Ok(new 
+            {
+                unAssigned=unAssignedCount,
+                totalTickets = totalTicketsCount,
+                Solved=SolvedCount,
+                inProgress =inProgressCount
+            });
+        }
+
+        [Authorize]
+        [HttpGet("DashboardCustomer")]
+        public async Task<IActionResult> GetDashBoardCustomer()
+        {
+            var totalTicketsCount = await _ticketManager.GetCustomerTicketCount(CurrentUserId);
+            var SolvedCount = await _ticketManager.GetRsolvedTicketCount();
+            var inProgressCount = await _ticketManager.GetActiveTicketsCount(CurrentUserId, TicketStatus.InProgress);
+            var LastTicketUpdate = await _historyService.GetLatestUpdateForCustomer(CurrentUserId);
+
+            return Ok(new
+            {
+                totalTickets = totalTicketsCount,
+                Solved = SolvedCount,
+                inProgress=inProgressCount,
+                LastUpdate =LastTicketUpdate
+            });
         }
 
 
@@ -198,7 +236,11 @@ namespace TicketingSystem.WebAPI.Controllers
             [FromQuery] string sortBy = "title",
             [FromQuery] string sortDirection = "asc")
         {
-            var (ticktes, totalCount) = await _ticketManager.GetTicketsPaged(page, pageSize, search, sortBy, sortDirection);
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var isAdmin = User.IsInRole("Admin");
+            var isStaff = User.IsInRole("Support") || isAdmin;
+
+            var (ticktes, totalCount) = await _ticketManager.GetTicketsPaged(userId, isStaff, isAdmin,page, pageSize, search, sortBy, sortDirection);
 
             return Ok(new
             {
