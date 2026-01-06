@@ -7,7 +7,7 @@ namespace TicketingSystem.DataAccess.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public string Message { get; set; }
+        public string? Message { get; set; }
         public DateTime CreateDate { get; set; }
         public Guid CreatedBy { get; set; }
         [ForeignKey("CreatedBy")]
