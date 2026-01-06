@@ -8,5 +8,6 @@ namespace TicketingSystem.Services.Interfaces
         Task AddRecord(Guid ticketId, TicketStatus newStatus, Guid userId);
         Task<List<TicketHistoryDto>?> GetTicketHistoryById(Guid ticketId);
         Task<TicketHistoryDto?> GetLatestForTicket(Guid ticketId);
+        Task<TicketHistoryDto?> GetLatestUpdateForCustomer(Guid customerId);
     }
 }

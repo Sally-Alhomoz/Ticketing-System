@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SharedDTOs;
 using SharedDTOs.Enum;
 using TicketingSystem.DataAccess.Models;
@@ -46,6 +47,7 @@ namespace TicketingSystem.Services.Services
             _logger.LogInformation("Ticket record added successfully");
             await _uow.Complete();
         }
+
 
         public async Task<List<TicketHistoryDto>?> GetTicketHistoryById(Guid ticketId)
         {
@@ -100,6 +102,32 @@ namespace TicketingSystem.Services.Services
 
             _logger.LogInformation("Successfully returned recent history record.");
             return dto;
+        }
+
+        public async Task<TicketHistoryDto?> GetLatestUpdateForCustomer(Guid customerId)
+        {
+            _logger.LogInformation("Fetching the latest activity for customer: {Id}", customerId);
+
+ 
+            var record = await _uow.TicketsHistory.GetHistories()
+                .Include(h => h.Ticket)
+                .Include(h => h.ChangedByUser)
+                .Where(h => h.Ticket.CreatedBy == customerId)
+                .OrderByDescending(h => h.ChangeDate)
+                .FirstOrDefaultAsync();
+
+            if (record == null) return null;
+
+            return new TicketHistoryDto
+            {
+                Id = record.Id,
+                TicketId = record.TicketId,
+                TicketTitle = record.Ticket.Title,
+                ChangeDate = record.ChangeDate,
+                ChangedByFullName = record.ChangedByUser.FirstName + " " + record.ChangedByUser.LastName,
+                NewStatus = record.NewStatus,
+                ChangedBy = record.ChangedBy
+            };
         }
     }
 }
