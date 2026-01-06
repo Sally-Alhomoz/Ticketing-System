@@ -113,6 +113,7 @@
 <script setup>
   import { ref, onMounted } from 'vue';
   import axios from 'axios';
+  import Swal from 'sweetalert2';
   import Paginate from 'vuejs-paginate-next';
   import api from '@/components/Authentication Service/AuthAPI'
   import { useAuth } from '@/components/Authentication Service/Authentication'
