@@ -4,123 +4,123 @@
     <br />
 
     <!-- SEARCH -->
-    <div class="row mb-4">
-      <div class="col-lg-5 col-md-6 col-sm-8">
-        <div class="input-group shadow-sm">
-          <span class="input-group-text bg-light border-end-0">
-            <i class="fas fa-search text-muted"></i>
-          </span>
-          <input v-model="searchQuery"
-                 @input="debouncedSearch"
-                 type="text"
-                 class="form-control border-start-0"
-                 placeholder="Search..."
-                 aria-label="Search users"
-                 style="font-size: 0.95rem;" />
-          <button v-if="searchQuery"
-                  @click="clearSearch"
-                  class="btn btn-outline-secondary border-start-0"
-                  type="button">
-            <i class="fas fa-xmark"></i>
-          </button>
-        </div>
+    <div class="col-md-8 col-lg-6">
+      <div class="input-group custom-search shadow-sm">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="fas fa-search text-muted"></i>
+        </span>
+        <input v-model="searchQuery" @input="debouncedSearch" type="text" class="form-control border-start-0" placeholder="Search products...">
       </div>
     </div>
+    <br />
+    <br />
 
     <!-- LOADING / ERROR -->
-    <div v-if="loading" class="text-center py-5">
-      <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;">
-        <span class="visually-hidden">Loading...</span>
+    <div class="table-card-container shadow-sm">
+      <div v-if="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;">
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
-    </div>
-    <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
+      <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
 
-    <!-- Table -->
-    <div v-else class="table-responsive">
-      <table class="table table-striped table-bordered table-hover table-sm">
-        <thead class="text-center bg-dark text-white">
-          <tr>
-            <th @click="sortBy('firstName')" class="cursor-pointer user-select-none">
-              Full Name <i :class="sortIcon('firstName')"></i>
-            </th>
-            <th @click="sortBy('username')" class="cursor-pointer user-select-none">
-              Username <i :class="sortIcon('username')"></i>
-            </th>
-            <th @click="sortBy('email')" class="cursor-pointer user-select-none">
-              Email <i :class="sortIcon('email')"></i>
-            </th>
-            <th @click="sortBy('role')" class="cursor-pointer user-select-none">
-              Role <i :class="sortIcon('role')"></i>
-            </th>
-            <th @click="sortBy('isActive')" class="cursor-pointer user-select-none">
-              Status <i :class="sortIcon('isActive')"></i>
-            </th>
-            <th v-if="isAdmin"></th>
-          </tr>
-        </thead>
-        <tbody class="text-center">
-          <tr v-for="user in users" :key="user.id">
-            <td><strong>{{ user.firstName }} {{ user.lastName }}</strong></td>
-            <td><strong>{{ user.username }}</strong></td>
-            <td>{{ user.email}}</td>
-            <td>{{ getRoleName(user.role) }}</td>
-            <td>{{ getUserStatus(user.status) }}</td>
-            <!--<td>
-              <div class="form-check form-switch d-inline-block">
-                <input class="form-check-input"
-                       type="checkbox"
-                       :id="'switch-' + user.username"
-                       :checked="user.status"-->
-                       <!--@change="toggleUserStatus(user.username)"-->
-                       <!--:disabled="user.username === currentUsername" />
-                <label :for="'switch-' + user.username" class="ms-2">
-                  <span class="badge" :class="user.isActive ? 'bg-success' : 'bg-secondary'">
-                    {{ user.status ? 'Active' : 'Inactive' }}
-                  </span>
-                </label>
-              </div>
-            </td>--->
-            <td v-if="isAdmin" class="text-center">
-              <button v-if="user.username !== currentUsername"
-                      @click="confirm(user.username)"
-                      class="btn btn-sm text-danger"
-                      title="Delete user">
-                <i class="fas fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Table -->
+      <div v-else class="table-responsive">
+        <table class="table table-hover custom-table mb-0">
+          <thead class="text-center">
+            <tr>
+              <th @click="sortBy('firstName')" class="cursor-pointer user-select-none">
+                Full Name <i :class="sortIcon('firstName')"></i>
+              </th>
+              <th @click="sortBy('username')" class="cursor-pointer user-select-none">
+                Username <i :class="sortIcon('username')"></i>
+              </th>
+              <th @click="sortBy('email')" class="cursor-pointer user-select-none">
+                Email <i :class="sortIcon('email')"></i>
+              </th>
+              <th @click="sortBy('role')" class="cursor-pointer user-select-none">
+                Role <i :class="sortIcon('role')"></i>
+              </th>
+              <th @click="sortBy('isActive')" class="cursor-pointer user-select-none">
+                Status <i :class="sortIcon('isActive')"></i>
+              </th>
+              <th v-if="isAdmin"></th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            <tr v-for="user in users" :key="user.id">
+              <td><strong>{{ user.firstName }} {{ user.lastName }}</strong></td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email}}</td>
+              <td>{{ getRoleName(user.role) }}</td>
+              <td>{{ getUserStatus(user.status) }}</td>
+              <td v-if="isAdmin" class="text-center">
+                <button v-if="user.username !== currentUsername"
+                        @click="confirm(user.username)"
+                        class="btn btn-sm text-danger"
+                        title="Delete user">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-      <!-- EMPTY STATE -->
-      <div v-if="users.length === 0" class="text-center py-5">
-        <i class="fas fa-users-slash fa-5x text-muted mb-4 opacity-50"></i>
-        <h4 class="text-muted">No user found</h4>
-        <p v-if="searchQuery" class="text-muted">
-          No results for "<strong>{{ searchQuery }}</strong>"
-        </p>
+        <!-- EMPTY STATE -->
+        <div v-if="users.length === 0" class="text-center py-5">
+          <i class="fas fa-users-slash fa-5x text-muted mb-4 opacity-50"></i>
+          <h4 class="text-muted">No user found</h4>
+          <p v-if="searchQuery" class="text-muted">
+            No results for "<strong>{{ searchQuery }}</strong>"
+          </p>
+        </div>
       </div>
-    </div>
 
-    <!-- PAGINATION -->
-    <div class="d-flex justify-content-between align-items-center mt-5 flex-wrap gap-3">
-      <paginate v-if="totalPages > 1"
-                v-model="currentPage"
-                :page-count="totalPages"
-                :page-range="5"
-                :margin-pages="2"
-                :click-handler="onPageChange"
-                :prev-text="'Prev'"
-                :next-text="'Next'"
-                :container-class="'pagination pagination-lg'"
-                :page-class="'page-item'"
-                :page-link-class="'page-link'"
-                :prev-class="'page-item'"
-                :next-class="'page-item'"
-                :active-class="'active'" />
+      <!-- PAGINATION -->
+      <div class="pagination-footer">
+        <div class="text-muted small">
+          Showing <strong>{{ users.length }}</strong> of {{ totalItems }}
+        </div>
 
-      <div class="text-muted">
-        Page {{ currentPage }} of {{ totalPages || 1 }}
+        <div class="d-flex align-items-center gap-2">
+
+          <!-- FIRST -->
+          <button class="page-link"
+                  :disabled="currentPage === 1"
+                  title="First"
+                  @click="goToFirst">
+            <i class="fa-solid fa-angles-left"></i>
+          </button>
+
+          <!-- PREV -->
+          <button class="page-link"
+                  :disabled="currentPage === 1"
+                  title="Previous"
+                  @click="goToPrev">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+
+          <!-- PAGE INFO -->
+          <span class="current-page-display">
+            {{ currentPage }} of {{ totalPages || 1 }}
+          </span>
+
+          <!-- NEXT -->
+          <button class="page-link"
+                  :disabled="currentPage === totalPages"
+                  title="Next"
+                  @click="goToNext">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <!-- LAST -->
+          <button class="page-link"
+                  :disabled="currentPage === totalPages"
+                  title="Last"
+                  @click="goToLast">
+            <i class="fa-solid fa-angles-right"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -209,6 +209,36 @@
     }
   }
 
+
+  const goToPrev = () => {
+    if (currentPage.value > 1) {
+      currentPage.value--
+      loadUsers();
+    }
+  }
+
+  const goToNext = () => {
+    if (currentPage.value < totalPages.value) {
+      currentPage.value++
+      loadUsers();
+    }
+  }
+
+
+  const goToFirst = () => {
+    if (currentPage.value !== 1) {
+      currentPage.value = 1
+      loadUsers();
+    }
+  }
+
+  const goToLast = () => {
+    if (currentPage.value !== totalPages.value) {
+      currentPage.value = totalPages.value
+      loadUsers();
+    }
+  }
+
   const onPageChange = (page) => {
     currentPage.value = page
     loadUsers()
@@ -270,39 +300,65 @@
     margin-bottom: 2rem;
   }
 
-  /* Search Bar */
-  .input-group {
-    max-width: 500px;
-    margin: 0 auto 1rem;
-    display: flex;
-    background: white;
-    border-radius: 20px;
+  .table-card-container {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(70, 186, 134, 0.15);
-    border: 1px solid rgba(70, 186, 134, 0.2);
   }
 
-  .input-group-text {
-    background: transparent !important;
-    border: none;
-    padding: 0 1.2rem;
+  .custom-table thead th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-size: 0.9rem;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
   }
 
-  .form-control {
-    border: none !important;
-    padding: 1.1rem 1rem;
-    font-size: 1rem;
-    box-shadow: none !important;
+  .custom-table tbody td {
+    font-size: 0.9rem;
+    padding: 9px;
+    vertical-align: middle;
   }
 
-    .form-control:focus {
-      box-shadow: none !important;
+  .custom-table tbody tr:hover {
+    background-color: #f8fafc !important;
+  }
+  .pagination-footer {
+    padding: 12px 16px;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    font-size: 0.9rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .custom-search {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+  }
+
+    .custom-search .form-control {
+      border: none;
+      font-size: 0.95rem;
+      padding: 10px;
     }
 
-  .input-group button {
+  .page-link {
     border: none;
     background: transparent;
-    padding: 0 1.2rem;
-    color: #94a3b8;
+    color: #46ba86;
+    font-size: 0.9rem;
   }
+
+    .page-link:hover:not(:disabled) {
+      color: #065f46;
+    }
+
+    .page-link:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
 </style>

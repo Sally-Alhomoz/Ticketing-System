@@ -1,38 +1,27 @@
 <template>
   <div class="container mt-5">
-    <h2 class="mb-4">Products Management</h2>
+    <h2 class="mb-4">Products</h2>
     <br />
 
     <div class="row mb-4 align-items-center">
-      <!-- Search  -->
-      <div class="col-lg-6 col-md-7">
-        <div class="input-group shadow-sm">
-          <span class="input-group-text bg-light border-end-0">
+      <div class="col-md-8 col-lg-6">
+        <div class="input-group custom-search shadow-sm">
+          <span class="input-group-text bg-white border-end-0">
             <i class="fas fa-search text-muted"></i>
           </span>
-          <input v-model="searchQuery"
-                 @input="debouncedSearch"
-                 type="text"
-                 class="form-control border-start-0"
-                 placeholder="Search..."
-                 style="font-size: 0.95rem;" />
-          <button v-if="searchQuery"
-                  @click="clearSearch"
-                  class="btn btn-outline-secondary border-start-0"
-                  type="button">
-            <i class="fas fa-times"></i>
-          </button>
+          <input v-model="searchQuery" @input="debouncedSearch" type="text" class="form-control border-start-0" placeholder="Search products...">
         </div>
       </div>
 
-      <div class="col-lg-6 col-md-5 text-end">
-        <button v-if="isAdmin" class="btn btn-primary px-4" @click="AddProductModal">
+      <div class="col-md-4 col-lg-6 text-md-end mt-3 mt-md-0">
+        <button v-if="isAdmin" class="btn btn-add-product px-4" @click="AddProductModal">
           <i class="fas fa-plus-circle me-2"></i>Add Product
         </button>
       </div>
     </div>
+    <br />
 
-      <!-- LOADING / ERROR -->
+    <div class="table-card-container shadow-sm">
       <div v-if="loading" class="text-center py-5">
         <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;">
           <span class="visually-hidden">Loading...</span>
@@ -40,28 +29,25 @@
       </div>
       <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
 
-      <!-- Table -->
       <div v-else class="table-responsive">
-        <table class="table table-striped table-bordered table-hover table-sm">
-          <thead class="text-center bg-dark text-white">
+        <table class="table table-hover custom-table mb-0">
+          <thead class="text-center">
             <tr>
-              <th @click="sortBy('id')">
-                Id
-                <i class="fas" :class="sortIcon('id')"></i>
+              <th @click="sortBy('id')" style="width: 100px; cursor: pointer;">
+                Id <i class="fas" :class="sortIcon('id')"></i>
               </th>
-              <th @click="sortBy('productName')">
-                Product Name
-                <i class="fas" :class="sortIcon('productName')"></i>
+              <th @click="sortBy('productName')" style="cursor: pointer;">
+                Product Name <i class="fas" :class="sortIcon('productName')"></i>
               </th>
               <th></th>
             </tr>
           </thead>
           <tbody class="text-center">
             <tr v-for="product in products" :key="product.id">
-              <td>{{product.id}}</td>
+              <td>{{ product.id }}</td>
               <td>{{ product.productName }}</td>
               <td>
-                <button @click="confirmDelete(product)" class="btn btn-outline-danger btn-sm">
+                <button @click="confirmDelete(product)" class="btn btn-link text-danger p-0 border-0">
                   <i class="fas fa-trash"></i>
                 </button>
               </td>
@@ -69,43 +55,65 @@
           </tbody>
         </table>
 
-        <!-- EMPTY STATE -->
         <div v-if="products.length === 0" class="text-center py-5">
-          <i class="fas fa-box-open fa-5x text-muted mb-4 opacity-50"></i>
-          <h4 class="text-muted">No product found</h4>
-          <p v-if="searchQuery" class="text-muted">
-            No results for "<strong>{{ searchQuery }}</strong>"
-          </p>
+          <i class="fas fa-box-open fa-3x text-muted mb-3 opacity-50"></i>
+          <p class="text-muted">No products found</p>
         </div>
       </div>
 
-      <!-- PAGINATION -->
-      <div class="d-flex justify-content-between align-items-center mt-5 flex-wrap gap-3">
-        <paginate v-if="totalPages > 1"
-                  v-model="currentPage"
-                  :page-count="totalPages"
-                  :page-range="5"
-                  :margin-pages="2"
-                  :click-handler="onPageChange"
-                  :prev-text="'Prev'"
-                  :next-text="'Next'"
-                  :container-class="'pagination pagination-lg'"
-                  :page-class="'page-item'"
-                  :page-link-class="'page-link'"
-                  :prev-class="'page-item'"
-                  :next-class="'page-item'"
-                  :active-class="'active'" />
+      <div class="pagination-footer">
+        <div class="text-muted small">
+          Showing <strong>{{ products.length }}</strong> of {{ totalItems }}
+        </div>
 
-        <div class="text-muted">
-          Page {{ currentPage }} of {{ totalPages || 1 }}
+        <div class="d-flex align-items-center gap-2">
+
+          <!-- FIRST -->
+          <button class="page-link"
+                  :disabled="currentPage === 1"
+                  title="First"
+                  @click="goToFirst">
+            <i class="fa-solid fa-angles-left"></i>
+          </button>
+
+          <!-- PREV -->
+          <button class="page-link"
+                  :disabled="currentPage === 1"
+                  title="Previous"
+                  @click="goToPrev">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+
+          <!-- PAGE INFO -->
+          <span class="current-page-display">
+            {{ currentPage }} of {{ totalPages || 1 }}
+          </span>
+
+          <!-- NEXT -->
+          <button class="page-link"
+                  :disabled="currentPage === totalPages"
+                  title="Next"
+                  @click="goToNext">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <!-- LAST -->
+          <button class="page-link"
+                  :disabled="currentPage === totalPages"
+                  title="Last"
+                  @click="goToLast">
+            <i class="fa-solid fa-angles-right"></i>
+          </button>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>
   import { ref, onMounted } from 'vue';
   import axios from 'axios';
+  import Paginate from 'vuejs-paginate-next';
   import api from '@/components/Authentication Service/AuthAPI'
   import { useAuth } from '@/components/Authentication Service/Authentication'
   import { useConfirm, useConfirmWarning, useInputDialog, successDialog, errorDialog } from '@/components/Modals/Modal'
@@ -115,7 +123,7 @@
   const currentPage = ref(1)
   const totalPages = ref(1)
   const totalItems = ref(0)
-  const perPage = ref(10)
+  const perPage = ref(5)
   const loading = ref(true)
   const error = ref('')
   const { isAdmin, currentUsername } = useAuth()
@@ -225,6 +233,37 @@
   }
 
 
+  const goToPrev = () => {
+    if (currentPage.value > 1) {
+      currentPage.value--
+      fetchProducts()
+    }
+  }
+
+  const goToNext = () => {
+    if (currentPage.value < totalPages.value) {
+      currentPage.value++
+      fetchProducts()
+    }
+  }
+
+
+  const goToFirst = () => {
+    if (currentPage.value !== 1) {
+      currentPage.value = 1
+      fetchProducts()
+    }
+  }
+
+  const goToLast = () => {
+    if (currentPage.value !== totalPages.value) {
+      currentPage.value = totalPages.value
+      fetchProducts()
+    }
+  }
+
+
+
   function debounce(fn, delay) {
     let timeout
     return (...args) => {
@@ -273,10 +312,9 @@
 
 <style scoped>
   .container {
-    font-family: 'Segoe UI';
+    font-family: 'Segoe UI', sans-serif;
     background: #ffff;
   }
-
   h2 {
     font-size: 2.8rem;
     font-weight: 750;
@@ -285,39 +323,89 @@
     margin-bottom: 2rem;
   }
 
-  /* Search Bar */
-  .input-group {
-    max-width: 500px;
-    margin: 0 auto 1rem;
-    display: flex;
-    background: white;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(70, 186, 134, 0.15);
-    border: 1px solid rgba(70, 186, 134, 0.2);
-  }
-
-  .input-group-text {
-    background: transparent !important;
+  .btn-add-product {
+    background: #46ba86 !important;
     border: none;
-    padding: 0 1.2rem;
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(6, 78, 59, 0.2);
   }
 
-  .form-control {
-    border: none !important;
-    padding: 1.1rem 1rem;
-    font-size: 1rem;
-    box-shadow: none !important;
-  }
-
-    .form-control:focus {
-      box-shadow: none !important;
+    .btn-add-product:hover {
+      background-color: #065f46;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgba(6, 78, 59, 0.3);
     }
 
-  .input-group button {
+    .btn-add-product:active {
+      transform: translateY(0);
+    }
+
+  .table-card-container {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .custom-table thead th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-size: 0.9rem;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .custom-table tbody td {
+    font-size: 0.9rem;
+    padding: 9px;
+    vertical-align: middle;
+  }
+
+  .custom-table tbody tr:hover {
+    background-color: #f8fafc !important;
+  }
+
+  .pagination-footer {
+    padding: 12px 16px;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    font-size:0.9rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .custom-search {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+  }
+
+    .custom-search .form-control {
+      border: none;
+      font-size: 0.95rem;
+      padding: 10px;
+    }
+
+  .page-link {
     border: none;
     background: transparent;
-    padding: 0 1.2rem;
-    color: #94a3b8;
+    color: #46ba86;
+    font-size: 0.9rem;
   }
+
+    .page-link:hover:not(:disabled) {
+      color: #065f46;
+    }
+
+    .page-link:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
 </style>
