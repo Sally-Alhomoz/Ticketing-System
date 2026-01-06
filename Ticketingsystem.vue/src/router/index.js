@@ -7,6 +7,7 @@ import Home from '../Views/Home.vue'
 import Users from '../Views/Account View/UserList.vue'
 import Products from '../Views/Product View/Products.vue'
 import Tickets from '../Views/Ticket View/Tickets.vue'
+import TicketDetails from '../Views/Ticket View/TicketDetails.vue'
 
 const routes = [
   {
@@ -43,6 +44,12 @@ const routes = [
         path: 'tickets',
         name: 'Tickets',
         component: Tickets
+      },
+      {
+        path: 'ticket/:id',
+        name: 'TicketDetails',
+        component: TicketDetails,
+        props: true
       }
     ]
   }
