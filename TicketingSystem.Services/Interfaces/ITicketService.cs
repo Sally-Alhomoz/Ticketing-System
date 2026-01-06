@@ -11,6 +11,13 @@ namespace TicketingSystem.Services.Interfaces
         Task<TicketDto?> GetTicketById(Guid ticketId);
         Task<bool> SetPriprity(Guid ticketId, TicketPriority priority);
         Task<bool> DeleteTicket(Guid ticketId, Guid userId);
-        Task<(List<TicketDto> ticktes, int totalCount)> GetTicketsPaged(int page, int pageSize, string search, string sortBy, string sortDirection);
+        Task<int> GetCustomerTicketCount(Guid userId);
+        Task<int> GetStaffTicketCount(Guid userId);
+        Task<int> GetStatusTicketCount(Guid userId, TicketStatus status);
+        Task<int> GetUnAssignedTicketCount();
+        Task<int> GetRsolvedTicketCount();
+        Task<int> GetActiveTicketsCount(Guid userId, TicketStatus status);
+        Task<(List<TicketDto> ticktes, int totalCount)> GetTicketsPaged(Guid currentUserId,bool isStaff,
+            bool isAdmin, int page, int pageSize, string search, string sortBy, string sortDirection);
     }
 }

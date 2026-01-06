@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SharedDTOs;
 using SharedDTOs.Enum;
 using TicketingSystem.DataAccess.Models;
@@ -221,7 +222,62 @@ namespace TicketingSystem.Services.Services
             return dto;
         }
 
+        public async Task<int> GetCustomerTicketCount(Guid userId)
+        {
+            _logger.LogInformation("Get totla number of tickets for a customer.");
+            var count =await _uow.Tickets.GetTicktes().CountAsync(t => t.CreatedBy == userId);
+
+            return count;
+        }
+
+        public async Task<int> GetStaffTicketCount(Guid userId)
+        {
+            _logger.LogInformation("Get totla number of ticket assined to staff.");
+            var count =await _uow.Tickets.GetTicktes().CountAsync(t => t.AssignedTo == userId);
+
+            return count;
+        }
+
+        public async Task<int> GetStatusTicketCount(Guid userId , TicketStatus status)
+        {
+            _logger.LogInformation("Get totla number of {Status} ticket.",status);
+            var count = await _uow.Tickets.GetTicktes()
+                .CountAsync(t => (t.AssignedTo == userId) && (t.Status == status));
+
+            return count;
+        }
+
+        public async Task<int> GetActiveTicketsCount(Guid userId, TicketStatus status)
+        {
+            _logger.LogInformation("Get totla number of {Status} ticket.", status);
+            var count = await _uow.Tickets.GetTicktes()
+                .CountAsync(t => (t.AssignedTo == userId) && (t.Status == status));
+
+            return count;
+        }
+
+        public async Task<int> GetRsolvedTicketCount()
+        {
+            _logger.LogInformation("Get totla number of resolved tickets.");
+            var count = await _uow.Tickets.GetTicktes()
+                .CountAsync(t => t.Status == TicketStatus.Resolved);
+
+            return count;
+        }
+
+        public async Task<int> GetUnAssignedTicketCount()
+        {
+            _logger.LogInformation("Get totla number of unassigned tickets.");
+            var count =await _uow.Tickets.GetTicktes()
+                .CountAsync(t => t.AssignedTo == null); ;
+
+            return count;
+        }
+
         public async Task<(List<TicketDto> ticktes, int totalCount)> GetTicketsPaged(
+            Guid currentUserId,
+            bool isStaff,
+            bool isAdmin,
             int page = 1,
             int pageSize = 10,
             string search = "",
@@ -231,6 +287,19 @@ namespace TicketingSystem.Services.Services
             _logger.LogInformation("Retrieving paged tickets. Page: {page}, Size: {pageSize}", page, pageSize);
 
             var query = _uow.Tickets.GetTicktes();
+            if(isAdmin)
+            { }
+            else if (isStaff)
+            {
+                query = query.Where(t =>
+                    t.AssignedTo == currentUserId ||
+                    t.CreatedBy == currentUserId ||
+                    t.AssignedTo == null);
+            }
+            else
+            {
+                query = query.Where(t => t.CreatedBy == currentUserId);
+            }
 
             // GLOBAL SEARCH — all fields
             if (!string.IsNullOrWhiteSpace(search))
