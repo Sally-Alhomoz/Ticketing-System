@@ -157,14 +157,27 @@ namespace TicketingSystem.Services.Services
         {
             var query = _uow.Users.GetUsers().AsQueryable();
 
-            // GLOBAL SEARCH — all fields
+            // 1. GLOBAL SEARCH
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var s = search.Trim().ToLower();
+
+                bool searchMatchesAdmin = "admin".Contains(s);
+                bool searchMatchesCustomer = "customer".Contains(s);
+                bool searchMatchesSupport = "support".Contains(s);
+                bool searchMatchesActive = "active".Contains(s);
+                bool searchMatchesInactive = "inactive".Contains(s);
+
                 query = query.Where(u =>
                     u.Username.ToLower().Contains(s) ||
                     (u.Email != null && u.Email.ToLower().Contains(s)) ||
-                    u.Role.ToString().ToLower().Contains(s)
+                    u.FirstName.ToLower().Contains(s) ||
+                    u.LastName.ToLower().Contains(s) ||
+                    (searchMatchesAdmin && u.Role == Role.Admin) ||
+                    (searchMatchesCustomer && u.Role == Role.Customer) ||
+                    (searchMatchesSupport && u.Role == Role.Support)||
+                    (searchMatchesActive && u.Status == UserStatus.Active) ||
+                    (searchMatchesInactive && u.Status == UserStatus.inActive)
                 );
             }
 
@@ -177,6 +190,8 @@ namespace TicketingSystem.Services.Services
                 ("role", _) => query.OrderBy(u => u.Role),
                 ("status", "desc") => query.OrderByDescending(u => u.Status),
                 ("status", _) => query.OrderBy(u => u.Status),
+                ("firstName", "desc") => query.OrderByDescending(u => u.FirstName),
+                ("firstame", _) => query.OrderBy(u => u.FirstName),
                 (_, "desc") => query.OrderByDescending(u => u.Username),
                 _ => query.OrderBy(u => u.Username)
             };
