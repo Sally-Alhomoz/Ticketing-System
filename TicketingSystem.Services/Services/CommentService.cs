@@ -49,7 +49,7 @@ namespace TicketingSystem.Services.Services
         {
             _logger.LogInformation("Retrieving commnet history for Ticket {TicketId}", ticketId);
 
-            var comments = _uow.Comments.GetCommentsByTicketId(ticketId).OrderBy(c => c.CreateDate).ToList();
+            var comments = _uow.Comments.GetCommentsByTicketId(ticketId).OrderByDescending(c => c.CreateDate).ToList();
 
             var attachments = await _attachmentService.GetByTicketId(ticketId);
 
