@@ -57,8 +57,11 @@ export const useAuth = () => {
   return {
     isAuthenticated: computed(() => !!currentUser.value),
     currentUsername: computed(() => currentUser.value?.username || ''),
+    currentUserId: computed(() => currentUser.value?.id || null),
+    isStaff: computed(() => ['Admin', 'Support'].includes(currentUser.value?.role)),
     UserRole: computed(() => currentUser.value?.role || ''),
     isAdmin: computed(() => ['Admin', '1', 1].includes(currentUser.value?.role)),
+    isCustomer: computed(() => ['Customer', '0',0].includes(currentUser.value?.role)),
     login,
     logout
   }
