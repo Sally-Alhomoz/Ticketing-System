@@ -90,10 +90,25 @@ builder.Services.AddSwaggerGen(opt =>
             new string[]{}
         }
     });
+
+
 });
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowVueDev",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:54045")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+});
 
 var app = builder.Build();
 
@@ -105,6 +120,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowVueDev");
 
 app.UseAuthentication();
 app.UseAuthorization();
