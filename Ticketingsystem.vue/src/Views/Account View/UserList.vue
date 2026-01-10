@@ -1,6 +1,9 @@
 <template>
   <div class="container mt-5">
-    <h2 class="mb-4">Users Management</h2>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0 fw-semibold text-secondary">Users</h5>
+    </div>
     <br />
 
     <!-- SEARCH -->
@@ -49,18 +52,43 @@
           </thead>
           <tbody class="text-center">
             <tr v-for="user in users" :key="user.id">
-              <td><strong>{{ user.firstName }} {{ user.lastName }}</strong></td>
-              <td>{{ user.username }}</td>
-              <td>{{ user.email}}</td>
-              <td>{{ getRoleName(user.role) }}</td>
-              <td>{{ getUserStatus(user.status) }}</td>
-              <td v-if="isAdmin" class="text-center">
-                <button v-if="user.username !== currentUsername"
-                        @click="confirm(user.username)"
-                        class="btn btn-sm text-danger"
-                        title="Delete user">
-                  <i class="fas fa-trash"></i>
-                </button>
+              <td>
+                <div class="d-flex align-items-center ps-3">
+                  <div class="avatar-sm me-3">
+                    {{ user.firstName[0] }}{{ user.lastName[0] }}
+                  </div>
+                  <div>
+                    <div class="fw-bold text-dark">{{ user.firstName }} {{ user.lastName }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{user.username}}</td>
+              <td class="text-muted">{{ user.email }}</td>
+
+              <td>
+                <span :class="[ 'role-badge',
+                      user.role === 1 ? 'role-admin' :
+                      user.role === 2 ? 'role-staff' : 'role-user']">
+                  {{ getRoleName(user.role) }}
+                </span>
+              </td>
+
+              <td>
+                <span :class="['status-pill', user.status === 1 ? 'active' : 'inactive']">
+                  <span class="dot"></span>
+                  {{ getUserStatus(user.status) }}
+                </span>
+              </td>
+
+              <td v-if="isAdmin">
+                <div class="d-flex justify-content-center gap-2">
+                  <button v-if="user.username !== currentUsername"
+                          @click="confirm(user.username)"
+                          class="btn btn-sm text-danger"
+                          title="Delete user">
+                    <i class="fas fa-trash text-danger"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -361,4 +389,79 @@
       opacity: 0.4;
       cursor: not-allowed;
     }
+
+  /* Avatar Style */
+  .avatar-sm {
+    width: 38px;
+    height: 38px;
+    background: #eef2ff;
+    color: #46ba86;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* Role Badges */
+  .role-badge {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .role-admin {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .role-user {
+    background: #f1f5f9;
+    color: #475569;
+  }
+  .role-staff {
+    background: #e0e7ff; 
+    color: #4338ca; 
+  }
+
+  /* Status Pills */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+    .status-pill.active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-pill.inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  .active .dot {
+    background: #22c55e;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+  }
+
+  .inactive .dot {
+    background: #ef4444;
+  }
+
 </style>

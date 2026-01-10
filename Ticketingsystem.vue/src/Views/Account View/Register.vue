@@ -1,69 +1,104 @@
 <template>
-  <div class="split-container">
-    <div class="login-side">
-      <div class="form-wrapper">
-        <div class="brand-header mb-4">
-          <h2 class="fw-bold">Create Account</h2>
-          <p class="text-muted">Join our ticketing system to get started.</p>
-        </div>
+  <div class="auth-viewport">
+    <div class="mesh-gradient"></div>
+    <div class="glass-sphere sphere-1"></div>
+    <div class="glass-sphere sphere-2"></div>
 
-        <form @submit.prevent="Register">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label small fw-bold text-uppercase">First Name</label>
-              <input v-model="firstname" type="text" class="form-control custom-input" placeholder="First Name" required />
+    <div class="container d-flex align-items-center justify-content-center min-vh-100">
+      <div class="main-card shadow-2xl">
+        <div class="row g-0">
+
+          <div class="col-lg-6 d-none d-lg-flex branding-side">
+            <div class="branding-content text-white w-100">
+              <div class="glass-pill mb-4">
+                <span class="pulse-dot"></span>
+                <span class="status-text">System Active 24/7</span>
+              </div>
+
+              <h1 class="display-5 fw-black mb-3">
+                Begin your <br />
+                <span class="text-accent">journey with us.</span>
+              </h1>
+              <p class="lead opacity-75 mb-5">
+                Join for high-performance support teams.
+              </p>
+
             </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label small fw-bold text-uppercase">Last Name</label>
-              <input v-model="lastname" type="text" class="form-control custom-input" placeholder="Last Name" required />
+          </div>
+
+          <div class="col-lg-6 login-side">
+            <div class="form-container">
+              <div class="text-center mb-4">
+                <div class="logo-wrapper mb-3">
+                  <i class="fas fa-user-plus text-success"></i>
+                </div>
+                <h3 class="fw-bold text-dark mb-1">Create Account</h3>
+                <p class="text-muted small">Sign up to start managing your tickets.</p>
+              </div>
+
+              <form @submit.prevent="Register">
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label class="input-label">First Name</label>
+                    <div class="input-field">
+                      <i class="far fa-address-card icon"></i>
+                      <input v-model="firstname" type="text" placeholder="first name" required />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="input-label">Last Name</label>
+                    <div class="input-field">
+                      <i class="far fa-address-card icon"></i>
+                      <input v-model="lastname" type="text" placeholder="last name" required />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="input-wrapper mb-3">
+                  <label class="input-label">Username</label>
+                  <div class="input-field">
+                    <i class="far fa-user icon"></i>
+                    <input v-model="username" type="text" placeholder="Coose a username" required />
+                  </div>
+                </div>
+
+                <div class="input-wrapper mb-3">
+                  <label class="input-label">Email</label>
+                  <div class="input-field">
+                    <i class="far fa-envelope icon"></i>
+                    <input v-model="email" type="email" placeholder="Enter your email" required />
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                    <label class="input-label">Password</label>
+                    <div class="input-field">
+                      <i class="fas fa-lock icon"></i>
+                      <input v-model="password" type="password" placeholder="••••••••" required />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="input-label">Confirm</label>
+                    <div class="input-field">
+                      <i class="fas fa-shield-alt icon"></i>
+                      <input v-model="confirmPassword" type="password" placeholder="••••••••" required />
+                    </div>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-primary-modern">
+                  <span>Create Account <i class="fas fa-arrow-right ms-2 small"></i></span>
+                </button>
+              </form>
+
+              <p class="text-center mt-4 mb-0 text-muted small">
+                Already have an account?
+                <router-link to="/" class="text-success fw-bold text-decoration-none">Login here</router-link>
+              </p>
             </div>
           </div>
-
-          <div class="form-group mb-3">
-            <label class="form-label small fw-bold text-uppercase">Username</label>
-            <input v-model="username" type="text" class="form-control custom-input" placeholder="Choose a username" required />
-          </div>
-
-          <div class="form-group mb-3">
-            <label class="form-label small fw-bold text-uppercase">Email Address</label>
-            <input v-model="email" type="email" class="form-control custom-input" placeholder="Your email" required />
-          </div>
-
-          <div class="form-group mb-3">
-            <label class="form-label small fw-bold text-uppercase">Password</label>
-            <input v-model="password" type="password" class="form-control custom-input" placeholder="Password" required />
-          </div>
-
-          <div class="form-group mb-4">
-            <label class="form-label small fw-bold text-uppercase">Confirm Password</label>
-            <input v-model="confirmPassword" type="password" class="form-control custom-input" placeholder="Confirm your password" required />
-          </div>
-
-          <button type="submit" class="btn-register">
-            Sign Up
-          </button>
-        </form>
-
-        <p class="login-link text-center mt-4">
-          Already have an account?
-          <router-link to="/" class="text-success fw-bold">Login here</router-link>
-        </p>
-
-        <div v-if="error" class="error-msg mt-3">{{ error }}</div>
-      </div>
-    </div>
-
-    <div class="image-side">
-      <div class="shape shape-1"></div>
-      <div class="shape shape-2"></div>
-      <div class="shape shape-3"></div>
-
-      <div class="overlay-content">
-        <div class="icon-box mb-4">
-          <i class="fas fa-user-plus fa-3x text-white"></i>
         </div>
-        <h3 class="display-4 fw-bold text-white custom-title">Begin Your Journey.</h3>
-        <p class="lead text-white-50">Experience the most intuitive ticketing platform designed for modern teams.</p>
       </div>
     </div>
   </div>
@@ -82,7 +117,6 @@
   const password = ref('')
   const confirmPassword = ref('')
   const email = ref('')
-  const error = ref('')
 
   const Register = async () => {
     if (password.value !== confirmPassword.value) {
@@ -111,137 +145,215 @@
 </script>
 
 <style scoped>
-  .split-container {
-    display: flex;
-    min-height: 100vh;
-    background-color: #ffffff;
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
-  .login-side {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-  }
-
-  .form-wrapper {
-    width: 100%;
-    max-width: 480px; 
-  }
-
-  .custom-input {
-    padding: 12px;
-    border-radius: 8px;
-    border: 1.5px solid #edf2f7;
+  .auth-viewport {
     background-color: #f8fafc;
-    transition: all 0.2s ease;
-  }
-
-    .custom-input:focus {
-      border-color: #46ba86;
-      background-color: #fff;
-      box-shadow: 0 0 0 3px rgba(70, 186, 134, 0.1);
-      outline: none;
-    }
-
-  .btn-register {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #46ba86 0%, #2d8a63 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-
-    .btn-register:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(45, 138, 99, 0.3);
-    }
-
-  /* Mesh Gradient Side */
-  .image-side {
-    flex: 1;
-    position: relative;
-    background-color: #1a4d38;
-    background-image: radial-gradient(at 0% 0%, hsla(158,64%,52%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(161,70%,30%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(155,55%,40%,1) 0, transparent 50%);
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     overflow: hidden;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 60px;
+    position: relative;
   }
 
-  @media (min-width: 992px) {
-    .image-side {
-      display: flex;
-    }
-  }
-
-  .shape {
+  .mesh-gradient {
     position: absolute;
-    filter: blur(80px);
-    opacity: 0.5;
-    border-radius: 50%;
+    inset: 0;
+    background: radial-gradient(at 0% 0%, rgba(70, 186, 134, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(52, 152, 219, 0.1) 0px, transparent 50%);
+    z-index: 0;
   }
 
-  .shape-1 {
+  .glass-sphere {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .sphere-1 {
     width: 400px;
     height: 400px;
     background: #46ba86;
     top: -100px;
-    right: -100px;
+    right: -50px;
   }
 
-  .shape-2 {
+  .sphere-2 {
     width: 300px;
     height: 300px;
-    background: #2d8a63;
+    background: #3498db;
     bottom: -50px;
     left: -50px;
   }
 
-  .shape-3 {
-    width: 250px;
-    height: 250px;
-    background: #065f46;
-    top: 40%;
-    left: 20%;
+  .main-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(25px);
+    border: 1px solid white;
+    border-radius: 32px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 1100px;
+    z-index: 10;
   }
 
-  .overlay-content {
-    position: relative;
-    z-index: 1;
-    max-width: 700px;
+  .branding-side {
+    background: linear-gradient(135deg, #1a4d38 0%, #064e3b 100%);
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100%;
   }
 
-  .icon-box {
+  .text-accent {
+    color: #46ba86;
+  }
+
+  .fw-black {
+    font-weight: 800;
+    letter-spacing: -1.5px;
+  }
+
+  /* 24/7 Animation */
+  .glass-pill {
+    display: inline-flex;
+    align-items: center;
     background: rgba(255, 255, 255, 0.1);
-    width: 80px;
-    height: 80px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #46ba86;
+    border-radius: 50%;
+    margin-right: 12px;
+    position: relative;
+  }
+
+    .pulse-dot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #46ba86;
+      animation: pulse 2s infinite;
+    }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+
+    100% {
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+
+  /* Stats Row */
+  .stat-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 35px;
+    background: rgba(255,255,255,0.2);
+  }
+  /* Form Side */
+  .login-side {
+    background: #ffffff;
+    padding: 40px 60px;
+  }
+
+  .logo-wrapper {
+    width: 50px;
+    height: 50px;
+    background: #f0fdf4;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 20px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    margin: 0 auto;
+    font-size: 1.5rem;
   }
 
-  .error-msg {
-    color: #dc3545;
-    background: #fff5f5;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    border: 1px solid #feb2b2;
+  .input-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
   }
 
-  .custom-title {
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    white-space: nowrap;
+  .input-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+    .input-field i {
+      position: absolute;
+      left: 15px;
+      color: #94a3b8;
+    }
+
+    .input-field input {
+      width: 100%;
+      padding: 10px 10px 10px 42px;
+      border-radius: 10px;
+      border: 1.5px solid #e2e8f0;
+      background: #f8fafc;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+      .input-field input:focus {
+        border-color: #46ba86;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(70, 186, 134, 0.1);
+      }
+
+  .btn-primary-modern {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    background: #1a4d38;
+    color: white;
+    border: none;
+    font-weight: 700;
+    transition: 0.3s;
+  }
+
+    .btn-primary-modern:hover {
+      background: #46ba86;
+      transform: translateY(-2px);
+    }
+
+  .preview-card {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .preview-line {
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
   }
 </style>
