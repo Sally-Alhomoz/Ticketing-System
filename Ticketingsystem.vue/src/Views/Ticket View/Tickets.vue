@@ -1,6 +1,9 @@
 <template>
   <div class="container mt-5">
-    <h2>Tickets</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0 fw-semibold text-secondary">Tickets</h5>
+    </div>
+    <br />
 
     <div class="row mb-4 align-items-center">
       <div class="col-md-8 col-lg-6">
