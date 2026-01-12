@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.Extensions.Logging;
 using SharedDTOs;
 using SharedDTOs.Enum;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using TicketingSystem.DataAccess.Models;
@@ -39,6 +41,30 @@ namespace TicketingSystem.Services.Services
             _uow.Users.Add(user);
             _logger.LogInformation("User added to the repository");
             await _uow.Complete();
+        }
+
+        public async Task<string> AddStaff(NewUserDto u)
+        {
+            _logger.LogInformation("Adding new support staff."); 
+
+            string tempPassword = Guid.NewGuid().ToString("N").Substring(0, 8); 
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = u.Username,
+                FirstName=u.FirstName,
+                LastName=u.LastName,
+                Email=u.Email,
+                Password = tempPassword, 
+                Role = Role.Support,
+                Status = UserStatus.Pending 
+            };
+
+            _uow.Users.Add(user);
+            await _uow.Complete();
+            _logger.LogInformation("Staff added to the repository");
+            return tempPassword;
         }
 
         public async Task<UserDto?> GetUserByUsername(string username)
@@ -83,8 +109,11 @@ namespace TicketingSystem.Services.Services
             bool flag = await VerifyPassword(user.Password, exist.Id, exist.Password);
             if (flag)
             {
-                exist.Status = UserStatus.Active;
-                _uow.Users.Update(exist);
+                if(exist.Status != UserStatus.Pending)
+                {
+                    exist.Status = UserStatus.Active;
+                    _uow.Users.Update(exist);
+                }
                 _logger.LogInformation("Login successful for username: {Username}", user.Username);
             }
             else
@@ -147,6 +176,100 @@ namespace TicketingSystem.Services.Services
             _logger.LogInformation("Deleting a user with username : {Username} Failed.", username);
             return false;
         }
+
+        public async Task<List<UserDto>> GetStaff()
+        {
+            _logger.LogInformation("Get all staff employess");
+
+            var staff = _uow.Users.GetUsers()
+                .Where(u => u.Role == Role.Support || u.Role == Role.Admin)
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Username = u.Username,
+                    Email = u.Email,
+                    Role = u.Role,
+                    Status = u.Status
+                })
+                .ToList();
+
+            return staff;
+        }
+
+        private string HashPassword(string pass, string id)
+        {
+            _logger.LogDebug("Hashing password for user ID {UserId}.", id);
+            byte[] userid = Encoding.UTF8.GetBytes(id);
+
+            byte[] hashed = KeyDerivation.Pbkdf2(
+                password: pass,
+                salt: userid,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 32);
+
+            return Convert.ToBase64String(hashed);
+        }
+
+        public async Task<bool> ChangePassword(string username, ChangePassword dto)
+        {
+            _logger.LogInformation("Attempting to cgange passord for user: {Username}", username);
+
+            var user = await _uow.Users.GetByUsername(username);
+
+            if (user == null )
+            {
+                _logger.LogWarning("User not found.");
+                return false;
+            }
+
+            bool isCurrentValid = await _uow.Users.VerifyPassword(dto.CurrentPassword, user.Id, user.Password);
+
+            if (!isCurrentValid)
+            {
+                _logger.LogWarning("Verification failed for {Username}.", username);
+                return false;
+            }
+            user.Password = HashPassword(dto.NewPassword, user.Id.ToString());
+
+            if (user.Status == UserStatus.Pending)
+            {
+                user.Status = UserStatus.Active;
+                _logger.LogInformation("User {Username} status promoted from Pending to Active.", username);
+            }
+
+            _uow.Users.Update(user);
+            await _uow.Complete();
+
+            _logger.LogInformation("Password changed successfully for {Username}", username);
+            return true;
+        }
+
+        public async Task<bool> UpdateProfile(string username, UpdateProfileDto updateUserData)
+        {
+            _logger.LogInformation("Updating profile for user: {Username}", username);
+
+            var user = await _uow.Users.GetByUsername(username);
+
+            if (user == null)
+            {
+                _logger.LogWarning("Update failed. User {Username} not found.", username);
+                return false;
+            }
+
+            user.FirstName = updateUserData.FirstName;
+            user.LastName = updateUserData.LastName;
+            user.Email = updateUserData.Email;
+
+            _uow.Users.Update(user);
+            await _uow.Complete();
+
+            _logger.LogInformation("Profile updated successfully for {Username}", username);
+            return true;
+        }
+
 
         public async Task<(List<UserDto> users, int totalCount)> GetUsersPaged(
            int page = 1,
