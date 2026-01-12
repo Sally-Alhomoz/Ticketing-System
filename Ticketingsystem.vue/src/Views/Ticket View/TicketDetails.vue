@@ -53,37 +53,59 @@
         <div class="card-body p-4">
           <div class="mb-4">
             <label class="text-muted small fw-bold text-uppercase d-block mb-2">Status</label>
-            <div :class="['badge-status w-100', getStatusBadgeClass(ticket.status)]">
-              {{ getStatusName(ticket.status) }}
+            <div class="position-relative">
+              <select v-if="currentUserId === ticket.assignedTo || isAdmin"
+                      v-model="ticket.status"
+                      @change="updateStatus(ticket.id, ticket.status)"
+                      :class="['form-select modern-badge-select', getStatusBadgeClass(ticket.status)]">
+                <option :value="0">New</option>
+                <option :value="1">In Progress</option>
+                <option :value="2">Resolved</option>
+                <option :value="3">Closed</option>
+                <option :value="4">Reopened</option>
+              </select>
+              <span v-else class="modern-badge d-block text-center" :class="getStatusBadgeClass(ticket.status)">
+                {{ getStatusName(ticket.status) }}
+              </span>
             </div>
           </div>
 
           <div class="mb-4">
             <label class="text-muted small fw-bold text-uppercase d-block mb-2">Priority</label>
-            <div :class="['badge-priority w-100', getPriorityBadgeClass(ticket.priority)]">
-              <i class="fas fa-flag me-2"></i> {{ getPriorityName(ticket.priority) }}
+            <div class="position-relative">
+              <select v-if="currentUserId === ticket.assignedTo || isAdmin"
+                      v-model="ticket.priority"
+                      @change="updatePriority(ticket.id, ticket.priority)"
+                      :class="['form-select modern-badge-select text-center', getPriorityBadgeClass(ticket.priority)]">
+                <option :value="0">Low</option>
+                <option :value="1">Medium</option>
+                <option :value="2">High</option>
+              </select>
+              <div v-else :class="['modern-badge d-block text-center', getPriorityBadgeClass(ticket.priority)]">
+                <i class="fas fa-flag me-2"></i> {{ getPriorityName(ticket.priority) }}
+              </div>
             </div>
           </div>
 
-          <hr />
+        <hr />
 
-          <div class="detail-row mb-3">
-            <span class="text-dark">Product:</span>
-            <span class="fw-bold float-end text-dark">{{ ticket.productName }}</span>
-          </div>
-          <div class="detail-row mb-3">
-            <span class="text-dark">Agent:</span>
-            <span class="fw-bold float-end text-success">{{ ticket.assignedToFullName || 'Unassigned' }}</span>
-          </div>
-          <div class="detail-row mb-3">
-            <span class="text-dark">Created By:</span>
-            <span class="fw-bold float-end text-dark">{{ ticket.createdByFullName }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="text-dark">Date:</span>
-            <span class="fw-bold float-end text-dark small">{{ formatDate(ticket.createDate) }}</span>
-          </div>
+        <div class="detail-row mb-3">
+          <span class="text-dark">Product:</span>
+          <span class="fw-bold float-end text-dark">{{ ticket.productName }}</span>
         </div>
+        <div class="detail-row mb-3">
+          <span class="text-dark">Agent:</span>
+          <span class="fw-bold float-end text-success">{{ ticket.assignedToFullName || 'Unassigned' }}</span>
+        </div>
+        <div class="detail-row mb-3">
+          <span class="text-dark">Created By:</span>
+          <span class="fw-bold float-end text-dark">{{ ticket.createdByFullName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="text-dark">Date:</span>
+          <span class="fw-bold float-end text-dark small">{{ formatDate(ticket.createDate) }}</span>
+        </div>
+      </div>
       </div>
     </div>
   </div>
@@ -265,6 +287,30 @@
       successDialog('Comment posted!');
     } catch (err) { errorDialog('Failed to post.'); }
     finally { posting.value = false; }
+  };
+
+  //Update ticket priority
+  const updatePriority = async (ticketId, newPriority) => {
+    try {
+      await api.patch(`/api/Ticket/SetPriority?ticketId=${ticketId}&priority=${newPriority}`);
+      successDialog("Updated", "Priority changed successfully");
+    } catch (err) {
+      console.error("Priority update error:", err);
+      errorDialog("Error", "Failed to update priority.");
+      fetchTickets();
+    }
+  };
+
+  //Update ticket status
+  const updateStatus = async (ticketId, newStatus) => {
+    try {
+      await api.patch(`/api/Ticket/UpdateStatus?ticketId=${ticketId}&newStatus=${newStatus}`);
+      successDialog("Updated", "Status updated successfully");
+    } catch (err) {
+      console.error("Status update error:", err);
+      errorDialog("Error", "Failed to update Status.");
+      fetchTickets();
+    }
   };
 
   const downloadImage = (file) => {
@@ -539,6 +585,46 @@
     background-color: #ffebee;
     color: #c62828;
     border: 1px solid #ffcdd2;
+  }
+
+  .modern-badge-select {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    padding: 10px;
+    cursor: pointer;
+    appearance: none;
+    text-align: center;
+    text-align-last: center;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+  }
+
+    .modern-badge-select:focus {
+      box-shadow: 0 0 0 0.25rem rgba(70, 186, 134, 0.2);
+      outline: none;
+    }
+
+    .modern-badge-select option {
+      background-color: #fff;
+      color: #333;
+      text-transform: none;
+      text-align: center;
+      font-weight: normal;
+    }
+
+  .modern-badge {
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    display: block;
   }
 
   /* Desktop Sidebar Sticky */
