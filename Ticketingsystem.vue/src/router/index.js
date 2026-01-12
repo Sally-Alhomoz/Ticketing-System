@@ -8,6 +8,8 @@ import Users from '../Views/Account View/UserList.vue'
 import Products from '../Views/Product View/Products.vue'
 import Tickets from '../Views/Ticket View/Tickets.vue'
 import TicketDetails from '../Views/Ticket View/TicketDetails.vue'
+import Profile from '../Views/Account View/Profile.vue'
+import ChangePassword from '../Views/Account View/ChangePassword.vue'
 
 const routes = [
   {
@@ -34,6 +36,16 @@ const routes = [
         path: 'users',
         name: 'UserList',
         component: Users
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: Profile
+      },
+      {
+        path: 'profile/changepassword',
+        name: 'ChangePassword',
+        component: ChangePassword
       },
       {
         path: 'products',
