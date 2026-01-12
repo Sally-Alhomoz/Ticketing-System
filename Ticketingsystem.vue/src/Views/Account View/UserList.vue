@@ -7,12 +7,20 @@
     <br />
 
     <!-- SEARCH -->
-    <div class="col-md-8 col-lg-6">
-      <div class="input-group custom-search shadow-sm">
-        <span class="input-group-text bg-white border-end-0">
-          <i class="fas fa-search text-muted"></i>
-        </span>
-        <input v-model="searchQuery" @input="debouncedSearch" type="text" class="form-control border-start-0" placeholder="Search products...">
+    <div class="row mb-4 align-items-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="input-group custom-search shadow-sm">
+          <span class="input-group-text bg-white border-end-0">
+            <i class="fas fa-search text-muted"></i>
+          </span>
+          <input v-model="searchQuery" @input="debouncedSearch" type="text" class="form-control border-start-0" placeholder="Search users...">
+        </div>
+      </div>
+
+      <div class="col-md-4 col-lg-6 text-md-end mt-3 mt-md-0">
+        <button v-if="isAdmin" class="btn btn-add-staff px-4" @click="handleAddStaff">
+          <i class="fas fa-user-plus me-2"></i>Add Staff
+        </button>
       </div>
     </div>
     <br />
@@ -74,7 +82,9 @@
               </td>
 
               <td>
-                <span :class="['status-pill', user.status === 1 ? 'active' : 'inactive']">
+                <span :class="['status-pill',
+                      user.status === 1 ? 'active' :
+                      user.status === 2 ? 'pending' : 'inactive']">
                   <span class="dot"></span>
                   {{ getUserStatus(user.status) }}
                 </span>
@@ -156,10 +166,10 @@
 
 <script setup>
   import { ref, computed, onMounted } from 'vue'
-  import Paginate from 'vuejs-paginate-next'
+  import Swal from 'sweetalert2'
   import api from '@/components/Authentication Service/AuthAPI'
   import { useAuth } from '@/components/Authentication Service/Authentication'
-  import { useConfirmWarning, successDialog, errorDialog } from '@/components/Modals/Modal'
+  import { useConfirmWarning, successDialog, errorDialog, useInputDialog } from '@/components/Modals/Modal'
 
   // State
   const users = ref([])
@@ -170,6 +180,7 @@
   const loading = ref(true)
   const error = ref('')
   const { isAdmin, currentUsername } = useAuth()
+  const inputDialog = useInputDialog().inputDialog
 
   // Search & Sort
   const searchQuery = ref('')
@@ -207,7 +218,7 @@
   }
 
   const getRoleName = (role) => ({ 0: 'Customer', 1: 'Admin', 2: 'Support' }[role] || 'Unknown')
-  const getUserStatus = (status) => ({ 0: 'inActive', 1: 'Active' }[status])
+  const getUserStatus = (status) => ({ 0: 'inActive', 1: 'Active', 2: 'Pending' }[status])
 
   // Load users
   const loadUsers = async () => {
@@ -280,16 +291,68 @@
     loadUsers()
   }
 
-  const toggleUserStatus = async (username) => {
-    try {
-      await api.patch(`${API_BASE_URL}/api/Account/togglestatus?username=${username}`, null)
-      const user = users.value.find(u => u.username === username)
-      if (user) user.isActive = !user.isActive
-    } catch {
-      alert('Failed to update status')
-      loadUsers()
+  const handleAddStaff = async () => {
+    const html = `
+    <div class="text-start">
+      <div class="mb-3">
+        <label class="form-label small fw-bold">First Name</label>
+        <input id="swal-fn" class="form-control" placeholder="Enter first name">
+      </div>
+      <div class="mb-3">
+        <label class="form-label small fw-bold">Last Name</label>
+        <input id="swal-ln" class="form-control" placeholder="Enter last name">
+      </div>
+      <div class="mb-3">
+        <label class="form-label small fw-bold">Email</label>
+        <input id="swal-email" type="email" class="form-control" placeholder="Enter email address">
+      </div>
+      <div class="mb-3">
+        <label class="form-label small fw-bold">Username</label>
+        <input id="swal-username" class="form-control" placeholder="Assign a username">
+      </div>
+    </div>`;
+
+    const preConfirmFn = () => {
+      const firstName = document.getElementById('swal-fn').value.trim();
+      const lastName = document.getElementById('swal-ln').value.trim();
+      const email = document.getElementById('swal-email').value.trim();
+      const username = document.getElementById('swal-username').value.trim();
+
+      if (!firstName || !lastName || !email || !username) {
+        Swal.showValidationMessage('All fields are required!');
+        return false;
+      }
+      return { firstName, lastName, email, username, password: 'temp', confirmPassword: 'temp' };
+    };
+
+    const data = await inputDialog('Add New Staff Member', html, 'Create', preConfirmFn);
+
+    if (data) {
+      try {
+        loading.value = true;
+        const response = await api.post('/api/Account/AddStaff', data);
+
+        const pwd = response.data.temporaryPassword || response.data;
+
+        await Swal.fire({
+          title: 'Staff Created!',
+          html: `Temporary Password: <br><b class="fs-4 text-primary">${pwd}</b>`,
+          icon: 'success',
+          confirmButtonText: 'Done',
+          cancelButtonColor:'#d33'
+        });
+
+        loadUsers();
+      } catch (err) {
+        console.error("Staff Creation Error:", err);
+        if (err.response?.status !== 200) {
+          errorDialog(err.response?.data?.message || err.response?.data || 'Failed to create staff');
+        }
+        } finally {
+        loading.value = false;
+      }
     }
-  }
+  };
 
   const confirm = async (username) => {
     const confirmed = await useConfirmWarning().confirmDialog(
@@ -448,6 +511,15 @@
       color: #991b1b;
     }
 
+    .status-pill.pending {
+      background: #fef3c7; 
+      color: #92400e;
+    }
+
+  .pending .dot {
+    background: #f59e0b;
+  }
+
   .dot {
     width: 6px;
     height: 6px;
@@ -464,5 +536,30 @@
     background: #ef4444;
   }
 
+
+  .btn-add-staff {
+    background: #46ba86 !important;
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(6, 78, 59, 0.2);
+  }
+
+    .btn-add-staff:hover {
+      background-color: #065f46;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgba(6, 78, 59, 0.3);
+    }
+
+  .empty-state {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    background: #f8fafc;
+    margin: 20px;
+  }
 </style>
 
