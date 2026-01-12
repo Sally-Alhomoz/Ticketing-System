@@ -126,32 +126,40 @@ namespace TicketingSystem.WebAPI.Controllers
         [HttpPatch("AssignTo")]
         [SwaggerOperation(
             Summary = "Assign ticket to support",
-            Description = "Assigns the specified ticket to the currently authenticated user. The ticket must be unassigned.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Ticket assigned successfully")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "Ticket is already assigned to another user")]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "Ticket ID does not exist")]
-        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authentication required")]
-        public async Task<IActionResult> AssignTicketToUser(Guid ticketId)
+            Description = "Assigns a ticket. If staffId is provided (Admin only), assigns to that user. Otherwise, assigns to the current user.")]
+        public async Task<IActionResult> AssignTicketToUser(Guid ticketId, Guid? staffId = null)
         {
-            _logger.LogInformation("Patch called to assign ticket to support staff.");
+            _logger.LogInformation("Patch called to assign ticket {TicketId}", ticketId);
 
             var exist = await _ticketManager.GetTicketById(ticketId);
+            if (exist == null) return NotFound("Ticket not found.");
 
-            if (exist == null)
+            Guid targetUserId;
+
+            if (staffId.HasValue)
             {
-                _logger.LogWarning("Ticket not found");
-                return NotFound("Ticket not found.");
+                if (!User.IsInRole("Admin"))
+                {
+                    return Forbid("Only admins can assign tickets to other users.");
+                }
+                targetUserId = staffId.Value;
+            }
+            else
+            {
+                targetUserId = CurrentUserId;
             }
 
-            var result = await _ticketManager.AssignTicket(ticketId, CurrentUserId);
+            var result = await _ticketManager.AssignTicket(ticketId, targetUserId);
 
-            if (!result && exist.AssignedTo != null)
+            if (!result)
             {
-                return BadRequest("Cannot assign ticket, ticket already assigned !");
+                return BadRequest("Failed to assign ticket. It might already be assigned or the user is invalid.");
             }
 
             return Ok("Ticket assigned successfully.");
         }
+
+
 
         [Authorize]
         [HttpPatch("SetPriority")]
