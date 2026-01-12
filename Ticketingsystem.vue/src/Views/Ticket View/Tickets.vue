@@ -66,52 +66,45 @@
               <td><strong>{{ ticket.title }}</strong></td>
               <td><strong>{{ ticket.productName }}</strong></td>
               <td>
-                <div class="d-flex justify-content-center">
-                  <select v-if="isStaff"
-                          v-model="ticket.priority"
-                          @change="updatePriority(ticket.id, ticket.priority)"
-                          class="form-select form-select-sm modern-badge-select"
-                          :class="getPriorityClass(ticket.priority)">
-                    <option :value="0">Low</option>
-                    <option :value="1">Medium</option>
-                    <option :value="2">High</option>
-                  </select>
-                  <span v-else class="modern-badge" :class="getPriorityClass(ticket.priority)">
-                    {{ getPriorityName(ticket.priority) }}
-                  </span>
-                </div>
+                <span class="modern-badge" :class="getPriorityClass(ticket.priority)">
+                  {{ getPriorityName(ticket.priority) }}
+                </span>
               </td>
               <td>
-                <div class="d-flex justify-content-center">
-                  <select v-if="isStaff"
-                          v-model="ticket.status"
-                          @change="updateStatus(ticket.id, ticket.status)"
-                          class="form-select form-select-sm modern-badge-select"
-                          :class="getStatusClass(ticket.status)">
-                    <option :value="0">New</option>
-                    <option :value="1">In Progress</option>
-                    <option :value="2">Resolved</option>
-                    <option :value="3">Closed</option>
-                    <option :value="4">Reopened</option>
-                  </select>
-                  <span v-else class="modern-badge" :class="getStatusClass(ticket.status)">
-                    {{ getStatusName(ticket.status) }}
-                  </span>
-                </div>
+                <span class="modern-badge" :class="getStatusClass(ticket.status)">
+                  {{ getStatusName(ticket.status) }}
+                </span>
               </td>
               <td>{{ ticket.createdByFullName }}</td>
               <td>
                 <div class="d-flex align-items-center justify-content-center gap-2">
-                  <button v-if="isStaff && ticket.assignedTo===null"
-                          @click="assignToMe(ticket.id)"
-                          class="btn btn-sm btn-outline-success border-0 p-1"
-                          title="Assign to Me">
-                    <i class="fa-solid fa-square-plus"></i>
-                  </button>
-                  <span v-if="ticket.assignedTo" class="text-dark">
-                    {{ ticket.assignedToFullName }}
+                  <div v-if="ticket.assignedTo === null">
+                    <select v-if="isAdmin"
+                            class="form-select form-select-sm modern-badge-select"
+                            :value="ticket.assignedTo"
+                            @change="handleAdminAssign(ticket.id, $event.target.value)">
+                      <option disabled value="">
+                        Unassigned
+                      </option>
+                      <option v-for="staff in staffList"
+                              :key="staff.id"
+                              :value="staff.id">
+                        {{ staff.firstName }} {{ staff.lastName }}
+                      </option>
+                    </select>
+
+                    <button v-else-if="isStaff"
+                            @click="assignToMe(ticket.id)"
+                            class="btn btn-sm btn-outline-success border-0 p-1"
+                            title="Assign to Me">
+                      <i class="fa-solid fa-square-plus me-1"></i> Assign Me
+                    </button>
+                  </div>
+
+                  <span v-else :class="ticket.assignedTo ? 'text-dark' : 'text-muted italic'">
+                    {{ ticket.assignedToFullName || 'Unassigned' }}
                   </span>
-                  <span v-else class="text-muted italic">Unassigned</span>
+
                 </div>
               </td>
               <td>{{formatDate(ticket.createDate)}}</td>
@@ -198,6 +191,7 @@
   const router = useRouter();
 
   const tickets = ref([]);
+  const staffList = ref([]);
 
   const currentPage = ref(1)
   const totalPages = ref(1)
@@ -242,6 +236,15 @@ const fetchTickets = async () => {
   }
 };
 
+  const fetchStaff = async () => {
+    try {
+      const response = await api.get('/api/Account/Staff'); 
+      staffList.value = response.data;
+    } catch (err) {
+      console.error("Failed to fetch staff", err);
+    }
+  };
+
 //Assign ticket to staff
   const assignToMe = async (ticketId) => {
     const confirmed = await confirmDialog(
@@ -271,29 +274,33 @@ const fetchTickets = async () => {
     }
   };
 
-  //Update ticket priority
-  const updatePriority = async (ticketId, newPriority) => {
-    try {
-      await api.patch(`/api/Ticket/SetPriority?ticketId=${ticketId}&priority=${newPriority}`);
-      successDialog("Updated", "Priority changed successfully");
-    } catch (err) {
-      console.error("Priority update error:", err);
-      errorDialog("Error", "Failed to update priority.");
-      fetchTickets();
+  const handleAdminAssign = async (ticketId, staffId) => {
+    const selectedStaff = staffList.value.find(s => s.id == staffId);
+    const staffName = selectedStaff ? `${selectedStaff.firstName} ${selectedStaff.lastName}` : "Unassigned";
+
+    const confirmed = await confirmDialog(
+      "Change Assignment",
+      `Are you sure you want to assign this ticket to ${staffName}?`,
+      "Assign"
+    );
+
+    if (confirmed) {
+      try {
+        loading.value = true;
+        await api.patch(`/api/Ticket/AssignTo?ticketId=${ticketId}&staffId=${staffId || ''}`);
+
+        successDialog("Success", `Ticket assigned to ${staffName}`);
+        await fetchTickets();
+      } catch (err) {
+        errorDialog("Error", "Failed to update assignment");
+      } finally {
+        loading.value = false;
+      }
+    } else {
+      await fetchTickets();
     }
   };
 
-  //Update ticket status
-  const updateStatus = async (ticketId, newStatus) => {
-    try {
-      await api.patch(`/api/Ticket/UpdateStatus?ticketId=${ticketId}&newStatus=${newStatus}`);
-      successDialog("Updated", "Status updated successfully");
-    } catch (err) {
-      console.error("Status update error:", err);
-      errorDialog("Error", "Failed to update Status.");
-      fetchTickets();
-    }
-  };
 
   //Add Ticket
   const AddTicketModal = async () => {
@@ -466,10 +473,12 @@ const fetchTickets = async () => {
   onMounted(() => {
     fetchTickets();
     fetchProductList();
+    if (isAdmin.value) {
+      fetchStaff(); 
+    }
 
     if (route.query.openModal === 'true') {
       AddTicketModal();
-
       router.replace({ query: {} });
     }
   });
