@@ -238,6 +238,7 @@ namespace TicketingSystem.Services.Services
             return count;
         }
 
+        //frp staff
         public async Task<int> GetStatusTicketCount(Guid userId , TicketStatus status)
         {
             _logger.LogInformation("Get totla number of {Status} ticket.",status);
@@ -247,11 +248,12 @@ namespace TicketingSystem.Services.Services
             return count;
         }
 
+        //for customer
         public async Task<int> GetActiveTicketsCount(Guid userId, TicketStatus status)
         {
             _logger.LogInformation("Get totla number of {Status} ticket.", status);
             var count = await _uow.Tickets.GetTicktes()
-                .CountAsync(t => (t.AssignedTo == userId) && (t.Status == status));
+                .CountAsync(t => (t.CreatedBy == userId) && (t.Status == status));
 
             return count;
         }
