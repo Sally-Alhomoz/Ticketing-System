@@ -14,28 +14,28 @@
         <li class="nav-item">
           <router-link to="/app/home" class="nav-link" active-class="active">
             <i class="fas fa-home me-2"></i>
-            <span class="link-text" v-if="isSidebarOpen">Home</span>
+            <span class="link-text" v-if="isSidebarOpen">{{ $t('sidebar.home') }}</span>
           </router-link>
         </li>
 
         <li class="nav-item">
           <router-link to="/app/tickets" class="nav-link" active-class="active">
             <i class="fa-solid fa-ticket me-2"></i>
-            <span class="link-text" v-if="isSidebarOpen">Tickets</span>
+            <span class="link-text" v-if="isSidebarOpen">{{ $t('sidebar.tickets') }}</span>
           </router-link>
         </li>
 
         <li class="nav-item" v-if="isAdmin">
           <router-link to="/app/products" class="nav-link" active-class="active">
             <i class="fas fa-cubes me-2"></i>
-            <span class="link-text" v-if="isSidebarOpen">Products</span>
+            <span class="link-text" v-if="isSidebarOpen">{{ $t('sidebar.products') }}</span>
           </router-link>
         </li>
 
         <li class="nav-item" v-if="isAdmin">
           <router-link to="/app/users" class="nav-link" active-class="active">
             <i class="fas fa-users me-2"></i>
-            <span class="link-text" v-if="isSidebarOpen">Users</span>
+            <span class="link-text" v-if="isSidebarOpen">{{ $t('sidebar.users') }}</span>
           </router-link>
         </li>
       </ul>
@@ -50,11 +50,11 @@
 
         <div v-if="isUserMenuOpen" class="user-dropdown-menu">
           <router-link to="/app/profile" class="dropdown-item profile-item" @click="isUserMenuOpen = false">
-            <i class="fas fa-user-circle me-2"></i> Profile
+            <i class="fas fa-user-circle me-2"></i>{{ $t('sidebar.profile') }}
           </router-link>
           <div class="dropdown-divider"></div>
           <button @click="logout" class="dropdown-item logout-item">
-            <i class="fas fa-sign-out-alt me-2 text-danger"></i> Logout
+            <i class="fas fa-sign-out-alt me-2 text-danger"></i> {{ $t('sidebar.logout') }}
           </button>
         </div>
       </div>
@@ -69,9 +69,10 @@
 <script setup>
   import { ref, computed } from 'vue'
   import { useRouter } from 'vue-router'
+  import { useI18n } from 'vue-i18n'
   import { useAuth } from '@/components/Authentication Service/Authentication'
 
-
+  const { t } = useI18n()
   const isSidebarOpen = ref(true)
   const isUserMenuOpen = ref(false)
   const { isAdmin, currentUsername, logout: authLogout } = useAuth()
@@ -353,6 +354,47 @@
       bottom: 10px;
       width: 200px;
     }
+
+  [dir="rtl"] .sidebar {
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    border-right: none;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.03); 
+  }
+
+
+  [dir="rtl"] .me-2 {
+    margin-right: 0 !important;
+    margin-left: 0.75rem !important; 
+  }
+
+  [dir="rtl"] .nav-link.active::before {
+    left: auto;
+    right: 0;
+    border-radius: 0 6px 6px 0;
+  }
+
+  [dir="rtl"] .user-profile-toggle {
+    text-align: right;
+  }
+
+    [dir="rtl"] .user-profile-toggle .user-name {
+      margin-right: 0;
+      margin-left: auto;
+    }
+
+  [dir="rtl"] .sidebar-header {
+    flex-direction: row-reverse;
+  }
+
+  [dir="rtl"] .logo-icon {
+    margin-right: 0;
+    margin-left: 0.8rem;
+  }
+
+  [dir="rtl"] .sidebar.closed .user-dropdown-menu {
+    left: auto;
+    right: 70px; 
+  }
 
   .main-content {
     flex-grow: 1;

@@ -1,21 +1,20 @@
 <template>
-  <div class="auth-viewport">
-    <div class="mesh-gradient"></div>
-    <div class="glass-sphere sphere-1"></div>
-    <div class="glass-sphere sphere-2"></div>
-
+  <div class="auth-viewport" :dir="$i18n.locale === 'ar' ? 'rtl' : 'ltr'">
     <div class="container d-flex align-items-center justify-content-center min-vh-100">
       <div class="main-card shadow-2xl">
         <div class="row g-0">
 
           <div class="col-lg-6 d-none d-lg-flex branding-side">
-            <div class="branding-content text-white">
+            <div class="branding-content text-white" :class="$i18n.locale === 'ar' ? 'text-end' : 'text-start'">
               <div class="glass-pill mb-4">
                 <span class="pulse-dot"></span>
-                <span class="status-text">System Active 24/7</span>
+                <span class="status-text">{{ $t('login.systemStatus') }}</span>
               </div>
-              <h1 class="display-5 fw-black mb-3">Resolve issues <br /> <span class="text-accent">faster than ever.</span></h1>
-              <p class="lead opacity-75">The next-generation ticket management system.</p>
+              <h1 class="display-5 fw-black mb-3">
+                {{ $t('login.heroTitle') }} <br />
+                <span class="text-accent">{{ $t('login.heroSubtitle') }}</span>
+              </h1>
+              <p class="lead opacity-75">{{ $t('login.heroLead') }}</p>
             </div>
           </div>
 
@@ -25,21 +24,21 @@
                 <div class="logo-wrapper mb-3">
                   <i class="fas fa-bolt text-success"></i>
                 </div>
-                <h3 class="fw-bold text-dark">Welcome Back</h3>
-                <p class="text-muted small">Enter your details to access your account.</p>
+                <h3 class="fw-bold text-dark">{{ $t('login.welcome') }}</h3>
+                <p class="text-muted small">{{ $t('login.enterDetails') }}</p>
               </div>
 
               <form @submit.prevent="handleLogin">
                 <div class="input-wrapper mb-3">
-                  <label class="input-label">Username</label>
+                  <label class="input-label">{{ $t('login.username') }}</label>
                   <div class="input-field">
                     <i class="far fa-user icon"></i>
-                    <input v-model="form.username" type="text" placeholder="username" required />
+                    <input v-model="form.username" type="text" :placeholder="$t('login.username')" required />
                   </div>
                 </div>
 
                 <div class="input-wrapper mb-4">
-                  <label class="input-label">Password</label>
+                  <label class="input-label">{{ $t('login.password') }}</label>
                   <div class="input-field">
                     <i class="fas fa-lock icon"></i>
                     <input v-model="form.password" type="password" placeholder="••••••••" required />
@@ -47,17 +46,21 @@
                 </div>
 
                 <div v-if="errorMessage" class="alert-modern mb-4">
-                  <i class="fas fa-circle-exclamation me-2"></i> {{ errorMessage }}
+                  <i class="fas fa-circle-exclamation mx-2"></i> {{ $t('login.error') }}
                 </div>
 
                 <button type="submit" class="btn-primary-modern" :disabled="loading">
-                  <span v-if="!loading">Sign In <i class="fas fa-arrow-right ms-2"></i></span>
+                  <span v-if="!loading">
+                    {{ $t('login.signIn') }}
+                    <i class="fas mx-2" :class="$i18n.locale === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right'"></i>
+                  </span>
                   <span v-else class="spinner-border spinner-border-sm"></span>
                 </button>
               </form>
 
               <p class="text-center mt-4 mb-0 text-muted small">
-                New here? <router-link to="/register" class="text-success fw-bold text-decoration-none">Create an account</router-link>
+                {{ $t('login.newHere') }}
+                <router-link to="/register" class="text-success fw-bold text-decoration-none">{{ $t('login.createAccount') }}</router-link>
               </p>
             </div>
           </div>
@@ -301,6 +304,30 @@
       background: #46ba86;
       animation: pulse 2s infinite;
     }
+
+  [dir="rtl"] .input-field i {
+    left: auto;
+    right: 15px;
+  }
+
+  [dir="rtl"] .input-field input {
+    padding: 12px 45px 12px 12px; 
+    text-align: right;
+  }
+
+  [dir="rtl"] .pulse-dot {
+    margin-right: 0;
+    margin-left: 12px;
+  }
+
+  [dir="rtl"] .alert-modern i {
+    margin-right: 0;
+    margin-left: 10px;
+  }
+
+  [dir="rtl"] .branding-content {
+    text-align: right;
+  }
   @keyframes pulse {
     0% {
       transform: scale(1);

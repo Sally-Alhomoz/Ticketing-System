@@ -1,31 +1,40 @@
 <template>
-  <div class="container mt-5">
-
+  <div class="container mt-5" :dir="locale === 'ar' ? 'rtl' : 'ltr'">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="mb-0 fw-semibold text-secondary">Products</h5>
+      <h5 class="mb-0 fw-semibold text-secondary">{{ $t('products.title') }}</h5>
     </div>
     <br />
 
     <div class="row mb-4 align-items-center">
       <div class="col-md-8 col-lg-6">
         <div class="input-group custom-search shadow-sm">
-          <span class="input-group-text bg-white border-end-0">
+          <span v-if="locale === 'en'" class="input-group-text bg-white border-end-0">
             <i class="fas fa-search text-muted"></i>
           </span>
-          <input v-model="searchQuery" @input="debouncedSearch" type="text" class="form-control border-start-0" placeholder="Search products...">
+
+          <input v-model="searchQuery"
+                 @input="debouncedSearch"
+                 type="text"
+                 class="form-control"
+                 :class="locale === 'en' ? 'border-start-0' : 'border-end-0'"
+                 :placeholder="$t('products.searchPlaceholder')">
+
+          <span v-if="locale === 'ar'" class="input-group-text bg-white border-start-0">
+            <i class="fas fa-search text-muted"></i>
+          </span>
         </div>
       </div>
 
-      <div class="col-md-4 col-lg-6 text-md-end mt-3 mt-md-0">
+      <div class="col-md-4 col-lg-6 mt-3 mt-md-0" :class="locale === 'ar' ? 'text-md-start' : 'text-md-end'">
         <button v-if="isAdmin" class="btn btn-add-product px-4" @click="AddProductModal">
-          <i class="fas fa-plus me-2"></i>Add Product
+          <i class="fas fa-plus" :class="locale === 'ar' ? 'ms-2' : 'me-2'"></i>
+          {{ $t('products.addProduct') }}
         </button>
       </div>
     </div>
     <br />
 
-    <div class="table-card-container shadow-sm">
-
+    <div class="table-card-container shadow-sm p-4">
       <div v-if="loading" class="text-center py-5">
         <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;"></div>
       </div>
@@ -35,7 +44,7 @@
       <div v-else>
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4 mb-5">
           <div v-for="product in products" :key="product.id" class="col">
-            <div class="product-card h-100">
+            <div class="product-card h-100" :class="locale === 'ar' ? 'text-end' : 'text-start'">
               <div class="product-image-container">
                 <img v-if="product.imageUrl"
                      :src="product.imageUrl"
@@ -45,7 +54,7 @@
                      loading="lazy">
                 <div v-else class="image-placeholder">
                   <i class="fas fa-box fa-2x text-white opacity-50"></i>
-                  <span class="placeholder-text">No image</span>
+                  <span class="placeholder-text">{{ $t('products.noImage') }}</span>
                 </div>
               </div>
 
@@ -54,14 +63,14 @@
                   {{ product.productName }}
                 </h5>
 
-                <div class="mt-auto d-flex justify-content-between align-items-center pt-2">
+                <div class="mt-auto d-flex justify-content-between align-items-center pt-2" :dir="locale === 'ar' ? 'rtl' : 'ltr'">
                   <span class="badge bg-secondary-subtle text-secondary small">
                     ID: {{ product.id }}
                   </span>
 
                   <button @click="confirmDelete(product)"
                           class="btn btn-sm btn-delete"
-                          title="Delete product">
+                          :title="$t('products.delete.button')">
                     <i class="fas fa-trash-alt"></i>
                   </button>
                 </div>
@@ -70,68 +79,46 @@
           </div>
         </div>
 
-        <!-- Empty state -->
         <div v-if="products.length === 0" class="empty-state text-center py-5 my-5">
           <i class="fas fa-box-open fa-5x text-muted mb-4 opacity-40"></i>
-          <h4 class="text-muted mb-2">No products found</h4>
-          <p class="text-muted">Try adjusting your search or add a new product</p>
+          <h4 class="text-muted mb-2">{{ $t('products.empty') }}</h4>
+          <p class="text-muted">{{ $t('products.emptySub') }}</p>
         </div>
 
-        <div class="pagination-footer">
+        <div class="pagination-footer" :dir="locale === 'ar' ? 'rtl' : 'ltr'">
           <div class="text-muted small">
-            Showing <strong>{{ products.length }}</strong> of {{ totalItems }}
+            {{ $t('products.pagination', { count: products.length, total: totalItems }) }}
           </div>
 
-          <div class="d-flex align-items-center gap-2">
-
-            <!-- FIRST -->
-            <button class="page-link"
-                    :disabled="currentPage === 1"
-                    title="First"
-                    @click="goToFirst">
-              <i class="fa-solid fa-angles-left"></i>
+          <div class="d-flex align-items-center gap-2" dir="ltr">
+            <button class="page-link" :disabled="currentPage === 1" @click="goToFirst">
+              <i class="fa-solid" :class="locale === 'ar' ? 'fa-angles-right' : 'fa-angles-left'"></i>
+            </button>
+            <button class="page-link" :disabled="currentPage === 1" @click="goToPrev">
+              <i class="fa-solid" :class="locale === 'ar' ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
             </button>
 
-            <!-- PREV -->
-            <button class="page-link"
-                    :disabled="currentPage === 1"
-                    title="Previous"
-                    @click="goToPrev">
-              <i class="fa-solid fa-chevron-left"></i>
-            </button>
-
-            <!-- PAGE INFO -->
             <span class="current-page-display">
-              {{ currentPage }} of {{ totalPages || 1 }}
+              {{ currentPage }} / {{ totalPages || 1 }}
             </span>
 
-            <!-- NEXT -->
-            <button class="page-link"
-                    :disabled="currentPage === totalPages"
-                    title="Next"
-                    @click="goToNext">
-              <i class="fa-solid fa-chevron-right"></i>
+            <button class="page-link" :disabled="currentPage === totalPages" @click="goToNext">
+              <i class="fa-solid" :class="locale === 'ar' ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
             </button>
-
-            <!-- LAST -->
-            <button class="page-link"
-                    :disabled="currentPage === totalPages"
-                    title="Last"
-                    @click="goToLast">
-              <i class="fa-solid fa-angles-right"></i>
+            <button class="page-link" :disabled="currentPage === totalPages" @click="goToLast">
+              <i class="fa-solid" :class="locale === 'ar' ? 'fa-angles-left' : 'fa-angles-right'"></i>
             </button>
           </div>
         </div>
       </div>
     </div>
-    </div>
+  </div>
 </template>
 
 <script setup>
   import { ref, onMounted } from 'vue';
-  import axios from 'axios';
+  import { useI18n } from 'vue-i18n'
   import Swal from 'sweetalert2';
-  import Paginate from 'vuejs-paginate-next';
   import api from '@/components/Authentication Service/AuthAPI'
   import { useAuth } from '@/components/Authentication Service/Authentication'
   import { useConfirm, useConfirmWarning, useInputDialog, successDialog, errorDialog } from '@/components/Modals/Modal'
@@ -145,6 +132,7 @@
   const loading = ref(true)
   const error = ref('')
   const { isAdmin, currentUsername } = useAuth()
+  const { t, locale } = useI18n();
 
   const searchQuery = ref('')
   const sortByField = ref('productName')
@@ -188,22 +176,22 @@
   //Add Product
   const AddProductModal = async () => {
     const html = `
-        <div class="mb-3 text-start">
-            <label for="swal-title" class="form-label text-dark">Product Name</label>
-            <input id="swal-title" type="text" class="form-control" placeholder="Product Name" required>
+        <div class="mb-3 text-start" dir="${locale.value === 'ar' ? 'rtl' : 'ltr'}">
+            <label for="swal-title" class="form-label text-dark">${t('products.modal.nameLabel')}</label>
+            <input id="swal-title" type="text" class="form-control" placeholder="${t('products.modal.namePlaceholder')}" required>
         </div>`;
 
     const preConfirmFn = () => {
       const name = document.getElementById('swal-title').value.trim();
 
       if (!name) {
-        Swal.showValidationMessage('Product name is required!');
+        Swal.showValidationMessage(t('products.modal.errorRequired'));
         return false;
       }
       return { name };
     };
 
-    const data = await inputDialog('Add New Product', html, 'Add', preConfirmFn)
+    const data = await inputDialog(t('products.modal.addTitle'), html, t('products.modal.addButton'), preConfirmFn);
     if (data) {
       const { name } = data;
       await AddProduct(name);
@@ -215,11 +203,9 @@
     try {
       await api.post(`/api/Product/Add?name=${encodeURIComponent(name)}`);
 
-      await successDialog(`Product: ${name} Added successfully!`);
+      await successDialog(t('products.modal.successAdd', { name }));
     } catch (error) {
-      console.error(error);
-      const msg = error.response?.data || "Could not add product";
-      await errorDialog(msg, "Error");
+      await errorDialog(t('products.modal.errorAdd'), "Error");
     }
     await fetchProducts(); 
   }
@@ -228,9 +214,9 @@
   //Delete
   const confirmDelete = async (product) => {
     const confirmed = await confirmDialogWarning(
-      'Delete Product',
-      `Are you sure you want to delete <b>${product.productName}</b>?`,
-      'Delete'
+      t('products.delete.title'),
+      t('products.delete.confirm', { name: product.productName }),
+      t('products.delete.button')
     );
 
     if (confirmed) {
@@ -384,13 +370,34 @@
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #e2e8f0;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
+
+    .custom-search:focus-within {
+      border-color: #46ba86;
+      box-shadow: 0 0 0 3px rgba(70, 186, 134, 0.1) !important;
+    }
 
     .custom-search .form-control {
       border: none;
       font-size: 0.95rem;
-      padding: 10px;
+      padding: 10px 15px;
+      box-shadow: none !important;
     }
+
+    .custom-search .input-group-text {
+      border: none;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+
+  [dir="rtl"] .custom-search .form-control {
+    text-align: right;
+  }
+
+  .bg-white {
+    background-color: #ffffff !important;
+  }
 
   .page-link {
     border: none;

@@ -2,13 +2,13 @@
   <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <button class="btn btn-outline-secondary btn-sm shadow-sm" @click="$router.back()">
-        <i class="fas fa-arrow-left me-2"></i>Back to List
+        <i class="fas fa-arrow-left me-2"></i>{{ $t('ticketDetails.backToList') }}
       </button>
     </div>
 
     <div v-if="loading" class="text-center py-5">
       <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
-      <p class="mt-2 text-muted">Loading ticket data...</p>
+      <p class="mt-2 text-muted">{{ $t('ticketDetails.loading') }}</p>
     </div>
 
     <div v-else-if="ticket" class="row g-4 mb-4">
@@ -18,15 +18,17 @@
             <h3 class="fw-bold text-dark mb-3">{{ ticket.title }}</h3>
 
             <div class="description-section bg-light p-4 rounded-3 mb-4">
-              <h6 class="text-uppercase small fw-bold mb-2 text-success">Ticket Number</h6>
+              <h6 class="text-uppercase small fw-bold mb-2 text-success">{{ $t('ticketDetails.ticketNumber') }}</h6>
               <p class="mb-3 fs-6 text-dark">#{{ ticket.id }}</p>
 
-              <h6 class="text-uppercase small fw-bold mb-2 text-success">Description</h6>
+              <h6 class="text-uppercase small fw-bold mb-2 text-success">{{ $t('ticketDetails.description') }}</h6>
               <p class="mb-0 fs-6 text-dark" style="white-space: pre-wrap;">
-                {{ ticket.description || 'No description provided.' }}
+                {{ ticket.description || $t('ticketDetails.noDescription') }}
               </p>
-            </div> <div v-if="ticket.attachments?.length" class="mt-4">
-              <h6 class="text-uppercase text-muted small fw-bold mb-3">Attachments</h6>
+            </div>
+
+            <div v-if="ticket.attachments?.length" class="mt-4">
+              <h6 class="text-uppercase text-muted small fw-bold mb-3">{{ $t('ticketDetails.attachments') }}</h6>
               <div class="d-flex flex-wrap gap-3">
                 <div v-for="file in ticket.attachments" :key="file.id" class="attachment-item">
                   <div v-if="isImage(file.fileName)" class="image-wrapper">
@@ -45,82 +47,84 @@
         </div>
       </div>
 
-    <div class="col-lg-4">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-header bg-white border-bottom py-3">
-          <h6 class="m-0 fw-bold text-dark">Ticket Details</h6>
-        </div>
-        <div class="card-body p-4">
-          <div class="mb-4">
-            <label class="text-muted small fw-bold text-uppercase d-block mb-2">Status</label>
-            <div class="position-relative">
-              <select v-if="currentUserId === ticket.assignedTo || isAdmin"
-                      v-model="ticket.status"
-                      @change="updateStatus(ticket.id, ticket.status)"
-                      :class="['form-select modern-badge-select', getStatusBadgeClass(ticket.status)]">
-                <option :value="0">New</option>
-                <option :value="1">In Progress</option>
-                <option :value="2">Resolved</option>
-                <option :value="3">Closed</option>
-                <option :value="4">Reopened</option>
-              </select>
-              <span v-else class="modern-badge d-block text-center" :class="getStatusBadgeClass(ticket.status)">
-                {{ getStatusName(ticket.status) }}
-              </span>
-            </div>
+      <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-white border-bottom py-3">
+            <h6 class="m-0 fw-bold text-dark">{{ $t('ticketDetails.sidebarTitle') }}</h6>
           </div>
+          <div class="card-body p-4">
+            <div class="mb-4">
+              <label class="text-muted small fw-bold text-uppercase d-block mb-2">{{ $t('ticketDetails.status') }}</label>
+              <div class="position-relative">
+                <select v-if="currentUserId === ticket.assignedTo || isAdmin"
+                        v-model="ticket.status"
+                        @change="updateStatus(ticket.id, ticket.status)"
+                        :class="['form-select modern-badge-select', getStatusBadgeClass(ticket.status)]">
+                  <option :value="0">{{ $t('tickets.status.new') }}</option>
+                  <option :value="1">{{ $t('tickets.status.progress') }}</option>
+                  <option :value="2">{{ $t('tickets.status.resolved') }}</option>
+                  <option :value="3">{{ $t('tickets.status.closed') }}</option>
+                  <option :value="4">{{ $t('tickets.status.reopened') }}</option>
+                </select>
+                <span v-else class="modern-badge d-block text-center" :class="getStatusBadgeClass(ticket.status)">
+                  {{ getStatusName(ticket.status) }}
+                </span>
+              </div>
+            </div>
 
-          <div class="mb-4">
-            <label class="text-muted small fw-bold text-uppercase d-block mb-2">Priority</label>
-            <div class="position-relative">
-              <select v-if="currentUserId === ticket.assignedTo || isAdmin"
-                      v-model="ticket.priority"
-                      @change="updatePriority(ticket.id, ticket.priority)"
-                      :class="['form-select modern-badge-select text-center', getPriorityBadgeClass(ticket.priority)]">
-                <option :value="0">Low</option>
-                <option :value="1">Medium</option>
-                <option :value="2">High</option>
-              </select>
-              <div v-else :class="['modern-badge d-block text-center', getPriorityBadgeClass(ticket.priority)]">
-                <i class="fas fa-flag me-2"></i> {{ getPriorityName(ticket.priority) }}
+            <div class="mb-4">
+              <label class="text-muted small fw-bold text-uppercase d-block mb-2">{{ $t('ticketDetails.priority') }}</label>
+              <div class="position-relative">
+                <select v-if="currentUserId === ticket.assignedTo || isAdmin"
+                        v-model="ticket.priority"
+                        @change="updatePriority(ticket.id, ticket.priority)"
+                        :class="['form-select modern-badge-select text-center', getPriorityBadgeClass(ticket.priority)]">
+                  <option :value="0">{{ $t('tickets.priority.low') }}</option>
+                  <option :value="1">{{ $t('tickets.priority.medium') }}</option>
+                  <option :value="2">{{ $t('tickets.priority.high') }}</option>
+                </select>
+                <div v-else :class="['modern-badge d-block text-center', getPriorityBadgeClass(ticket.priority)]">
+                  <i class="fas fa-flag me-2"></i> {{ getPriorityName(ticket.priority) }}
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4 opacity-10" />
+
+            <div class="detail-group">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">{{ $t('ticketDetails.product') }}</span>
+                <span class="fw-bold text-dark">{{ ticket.productName }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">{{ $t('ticketDetails.agent') }}</span>
+                <span class="fw-bold text-dark">{{ ticket.assignedToFullName || $t('ticketDetails.unassigned') }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">{{ $t('ticketDetails.createdBy') }}</span>
+                <span class="text-dark">{{ ticket.createdByFullName }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted small">{{ $t('ticketDetails.date') }}</span>
+                <span class="text-muted x-small">{{ formatDate(ticket.createDate) }}</span>
               </div>
             </div>
           </div>
-
-        <hr />
-
-        <div class="detail-row mb-3">
-          <span class="text-dark">Product:</span>
-          <span class="fw-bold float-end text-dark">{{ ticket.productName }}</span>
         </div>
-        <div class="detail-row mb-3">
-          <span class="text-dark">Agent:</span>
-          <span class="fw-bold float-end text-success">{{ ticket.assignedToFullName || 'Unassigned' }}</span>
-        </div>
-        <div class="detail-row mb-3">
-          <span class="text-dark">Created By:</span>
-          <span class="fw-bold float-end text-dark">{{ ticket.createdByFullName }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="text-dark">Date:</span>
-          <span class="fw-bold float-end text-dark small">{{ formatDate(ticket.createDate) }}</span>
-        </div>
-      </div>
       </div>
     </div>
-  </div>
 
-    <div class="card shadow-sm border-0 mb-5">
+    <div v-if="ticket" class="card shadow-sm border-0 mb-5">
       <div class="card-header bg-white p-0 border-bottom">
         <ul class="nav nav-tabs border-0 px-3">
           <li class="nav-item">
             <button class="nav-link py-3 px-4" :class="{active: activeTab === 'comments'}" @click="activeTab = 'comments'">
-              <i class="fas fa-comments me-2"></i>Discussion
+              <i class="fas fa-comments me-2"></i>{{ $t('ticketDetails.tabs.discussion') }}
             </button>
           </li>
           <li class="nav-item" v-if="(isStaff && ticket?.assignedTo === currentUserId) || isAdmin">
             <button class="nav-link py-3 px-4" :class="{active: activeTab === 'history'}" @click="activeTab = 'history'">
-              <i class="fas fa-history me-2"></i>Activity History
+              <i class="fas fa-history me-2"></i>{{ $t('ticketDetails.tabs.history') }}
             </button>
           </li>
         </ul>
@@ -129,7 +133,7 @@
       <div class="card-body p-4">
         <div v-if="activeTab === 'comments'">
           <div class="mb-5 bg-light p-3 rounded">
-            <textarea v-model="newComment" class="form-control border-0 bg-white" rows="3" placeholder="Write a comment..."></textarea>
+            <textarea v-model="newComment" class="form-control border-0 bg-white" rows="3" :placeholder="$t('ticketDetails.comments.placeholder')"></textarea>
             <div v-if="selectedFile" class="mt-2 d-flex align-items-center bg-white p-2 rounded border">
               <i class="fas fa-file-alt text-success me-2"></i>
               <span class="small text-truncate">{{ selectedFile.name }}</span>
@@ -137,28 +141,33 @@
             </div>
             <div class="d-flex justify-content-between align-items-center mt-3">
               <button class="btn btn-light btn-sm text-success" @click="$refs.fileInput.click()">
-                <i class="fas fa-paperclip me-2"></i>Attach File
+                <i class="fas fa-paperclip me-2"></i>{{ $t('ticketDetails.comments.attach') }}
                 <input type="file" ref="fileInput" class="d-none" @change="handleFileChange" />
               </button>
               <button class="btn btn-success px-4" @click="postComment" :disabled="(!newComment.trim() && !selectedFile) || posting">
-                <span v-if="posting" class="spinner-border spinner-border-sm me-1"></span> Post
+                <span v-if="posting" class="spinner-border spinner-border-sm me-1"></span> {{ $t('ticketDetails.comments.post') }}
               </button>
             </div>
           </div>
 
           <div v-if="commentsExist">
-            <div v-for="comment in ticket.comments" :key="comment.id" class="mb-4 d-flex">
+            <div v-for="comment in ticket.comments" :key="comment.id" class="mb-4 d-flex align-items-start">
               <div class="flex-shrink-0 me-3">
-                <div class="avatar bg-success-subtle text-success fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                <div class="avatar bg-success-subtle text-success fw-bold rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                     style="width: 48px; height: 48px; font-size: 1.2rem;">
                   {{ comment.createdByFullName.charAt(0) }}
                 </div>
               </div>
+
               <div class="flex-grow-1 border-bottom pb-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                   <span class="fw-bold text-dark">{{ comment.createdByFullName }}</span>
-                  <small class="text-muted">{{ formatDate(comment.createDate) }}</small>
+                  <small class="text-muted opacity-75">{{ formatDate(comment.createDate) }}</small>
                 </div>
-                <p class="text-secondary mb-2" style="white-space: pre-wrap;">{{ comment.message }}</p>
+
+                <p class="text-secondary mb-2 comment-text" style="white-space: pre-wrap;">
+                  {{ comment.message }}
+                </p>
 
                 <div v-if="comment.attachments?.length" class="d-flex flex-wrap gap-2 mt-2">
                   <div v-for="file in comment.attachments" :key="file.id" class="d-inline-block text-center">
@@ -176,7 +185,7 @@
             </div>
           </div>
           <div v-else class="text-center py-5">
-            <p class="text-muted">No comments yet. Be the first to start the discussion.</p>
+            <p class="text-muted">{{ $t('ticketDetails.comments.empty') }}</p>
           </div>
         </div>
 
@@ -190,11 +199,11 @@
                 <span class="timeline-dot" :class="getStatusBadgeClass(record.newStatus)"></span>
                 <div class="timeline-box shadow-sm border p-3 rounded-3">
                   <div class="d-flex justify-content-between mb-1">
-                    <span class="fw-bold">{{ record.changedByFullName || 'System' }}</span>
+                    <span class="fw-bold">{{ record.changedByFullName || $t('ticketDetails.history.system') }}</span>
                     <small class="text-muted">{{ formatDate(record.changeDate) }}</small>
                   </div>
                   <p class="mb-0 text-muted">
-                    Changed status to <span class="badge" :class="getStatusBadgeClass(record.newStatus)">{{ getStatusName(record.newStatus) }}</span>
+                    {{ $t('ticketDetails.history.changedStatus') }} <span class="badge" :class="getStatusBadgeClass(record.newStatus)">{{ getStatusName(record.newStatus) }}</span>
                   </p>
                 </div>
               </li>
@@ -204,13 +213,14 @@
       </div>
     </div>
   </div>
+
   <div v-if="showModal" class="custom-modal-overlay" @click.self="closeModal">
     <div class="custom-modal-container">
       <div class="custom-modal-header py-2 px-3 d-flex justify-content-between align-items-center bg-dark text-white rounded-top">
         <span class="text-truncate me-3" style="max-width: 250px;">{{ activeFile?.fileName }}</span>
         <div class="d-flex gap-2">
           <button class="btn btn-sm btn-outline-secondary text-white border-secondary" @click="downloadImage(activeFile)">
-            <i class="fas fa-download me-1"></i> 
+            <i class="fas fa-download me-1"></i>
           </button>
           <button class="btn btn-sm btn-danger" @click="closeModal">
             <i class="fas fa-times"></i>
@@ -226,10 +236,12 @@
 
 <script setup>
   import { ref, onMounted, computed, onUnmounted, watch } from 'vue';
+  import { useI18n } from 'vue-i18n'
   import api from '@/components/Authentication Service/AuthAPI';
   import { useAuth } from '@/components/Authentication Service/Authentication';
   import { successDialog, errorDialog } from '@/components/Modals/Modal';
 
+  const { t, locale } = useI18n();
   const props = defineProps(['id']);
   const ticket = ref(null);
   const loading = ref(true);
@@ -284,12 +296,13 @@
       newComment.value = '';
       selectedFile.value = null;
       await fetchTicketDetails();
-      successDialog('Comment posted!');
-    } catch (err) { errorDialog('Failed to post.'); }
+      successDialog(t('ticketDetails.comments.success'));
+  } catch (err) {
+    errorDialog(t('tickets.errors.failed'));
+  }
     finally { posting.value = false; }
   };
 
-  //Update ticket priority
   const updatePriority = async (ticketId, newPriority) => {
     try {
       await api.patch(`/api/Ticket/SetPriority?ticketId=${ticketId}&priority=${newPriority}`);
@@ -297,11 +310,9 @@
     } catch (err) {
       console.error("Priority update error:", err);
       errorDialog("Error", "Failed to update priority.");
-      fetchTickets();
     }
   };
 
-  //Update ticket status
   const updateStatus = async (ticketId, newStatus) => {
     try {
       await api.patch(`/api/Ticket/UpdateStatus?ticketId=${ticketId}&newStatus=${newStatus}`);
@@ -309,7 +320,6 @@
     } catch (err) {
       console.error("Status update error:", err);
       errorDialog("Error", "Failed to update Status.");
-      fetchTickets();
     }
   };
 
@@ -349,40 +359,53 @@
   const getFileIcon = (n) => n.toLowerCase().endsWith('.pdf') ? 'fas fa-file-pdf text-danger' : 'fas fa-file text-muted';
   const getStatusBadgeClass = (v) => ({ 0: 'status-new', 1: 'status-progress', 2: 'status-resolved', 3: 'status-closed', 4: 'status-reopened' }[v]);
   const getPriorityBadgeClass = (v) => ({ 0: 'priority-low', 1: 'priority-medium', 2: 'priority-high' }[v]);
-  const getStatusName = (v) => ['New', 'In Progress', 'Resolved', 'Closed', 'Reopened'][v] || 'Unknown';
-  const getPriorityName = (v) => ['Low', 'Medium', 'High'][v] || 'Normal';
+
+  const getPriorityName = (v) => {
+    const map = {
+      0: t('tickets.priority.low'),
+      1: t('tickets.priority.medium'),
+      2: t('tickets.priority.high'),
+    };
+    return map[v] || 'Normal';
+  };
+
+  const getStatusName = (v) => {
+    const map = {
+      0: t('tickets.status.new'),
+      1: t('tickets.status.progress'),
+      2: t('tickets.status.resolved'),
+      3: t('tickets.status.closed'),
+      4: t('tickets.status.reopened'),
+    };
+    return map[v]
+  };
 
   const handleFileChange = (e) => { selectedFile.value = e.target.files[0]; };
   const clearFile = () => { selectedFile.value = null; };
-  const getButtonLabel = (f) => isImage(f.fileName) ? 'View' : 'Download';
-
 
   const formatDate = (d) => {
     if (!d) return 'N/A';
     const date = new Date(d);
-
     const datePart = date.toLocaleDateString('en-GB');
-
-    const timePart = date.toLocaleTimeString([], {
+    const timePart = date.toLocaleTimeString('en-GB', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     });
-
     return `${datePart} ${timePart}`;
   };
 
   const handleFileClick = (file) => {
     const fileName = file.fileName.toLowerCase();
-
     if (isImage(fileName)) {
-      openPreview(file); 
+      openPreview(file);
     } else if (fileName.endsWith('.pdf')) {
-      viewPdf(file.id);  
+      viewPdf(file.id);
     } else {
       downloadFile(file);
     }
   };
+
   const openPreview = (file) => { activeFile.value = file; showModal.value = true; };
   const closeModal = () => { showModal.value = false; activeFile.value = null; };
 
@@ -393,6 +416,7 @@
 </script>
 
 <style scoped>
+  /* Styles remain identical to provided code */
   .nav-tabs .nav-link {
     color: #6c757d;
     font-weight: 600;
@@ -447,7 +471,6 @@
       transform: translateX(5px);
     }
 
-  /* Status */
   .status-new {
     background-color: #e3f2fd;
     color: #1565c0;
@@ -491,7 +514,6 @@
       background: #e9ecef;
     }
 
-  /* Thumbnail Previews */
   .preview-trigger-sm {
     height: 60px;
     width: 60px;
@@ -506,7 +528,6 @@
       transform: scale(1.05);
     }
 
-  /* Modal*/
   .custom-modal-overlay {
     position: fixed;
     inset: 0;
@@ -532,7 +553,6 @@
     display: block;
   }
 
-  /* Sidebar Badge Styles */
   .badge-status, .badge-priority {
     padding: 10px;
     border-radius: 6px;
@@ -543,12 +563,11 @@
     text-transform: uppercase;
   }
 
-  /* File Icon Box */
   .file-icon-box {
     width: 80px;
     height: 80px;
     background: #f8f9fa;
-    border: 1px border #dee2e6;
+    border: 1px solid #dee2e6;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -563,12 +582,10 @@
       border-color: #adb5bd;
     }
 
-
   .detail-row {
     font-size: 0.9rem;
   }
 
-  /*Prioprity levels*/
   .priority-low {
     background-color: #e0f2f1;
     color: #00796b;
@@ -626,8 +643,18 @@
     text-transform: uppercase;
     display: block;
   }
+  .comment-text {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    text-align: start;
+  }
 
-  /* Desktop Sidebar Sticky */
+  [dir="rtl"] .me-3 {
+    margin-right: 0 !important;
+    margin-left: 1rem !important; 
+  }
+
+
   @media (min-width: 992px) {
     .sticky-top {
       position: sticky;

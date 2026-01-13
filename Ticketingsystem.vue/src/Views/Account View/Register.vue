@@ -1,28 +1,20 @@
 <template>
-  <div class="auth-viewport">
-    <div class="mesh-gradient"></div>
-    <div class="glass-sphere sphere-1"></div>
-    <div class="glass-sphere sphere-2"></div>
-
+  <div class="auth-viewport" :dir="$i18n.locale === 'ar' ? 'rtl' : 'ltr'">
     <div class="container d-flex align-items-center justify-content-center min-vh-100">
       <div class="main-card shadow-2xl">
         <div class="row g-0">
 
           <div class="col-lg-6 d-none d-lg-flex branding-side">
-            <div class="branding-content text-white w-100">
+            <div class="branding-content text-white w-100" :class="$i18n.locale === 'ar' ? 'text-end' : 'text-start'">
               <div class="glass-pill mb-4">
                 <span class="pulse-dot"></span>
-                <span class="status-text">System Active 24/7</span>
+                <span class="status-text">{{ $t('login.systemStatus') }}</span>
               </div>
-
               <h1 class="display-5 fw-black mb-3">
-                Begin your <br />
-                <span class="text-accent">journey with us.</span>
+                {{ $t('register.heroTitle') }} <br />
+                <span class="text-accent">{{ $t('register.heroSubtitle') }}</span>
               </h1>
-              <p class="lead opacity-75 mb-5">
-                Join for high-performance support teams.
-              </p>
-
+              <p class="lead opacity-75 mb-5">{{ $t('register.heroLead') }}</p>
             </div>
           </div>
 
@@ -32,54 +24,54 @@
                 <div class="logo-wrapper mb-3">
                   <i class="fas fa-user-plus text-success"></i>
                 </div>
-                <h3 class="fw-bold text-dark mb-1">Create Account</h3>
-                <p class="text-muted small">Sign up to start managing your tickets.</p>
+                <h3 class="fw-bold text-dark mb-1">{{ $t('register.title') }}</h3>
+                <p class="text-muted small">{{ $t('register.subtitle') }}</p>
               </div>
 
               <form @submit.prevent="Register">
                 <div class="row g-3 mb-3">
                   <div class="col-md-6">
-                    <label class="input-label">First Name</label>
+                    <label class="input-label">{{ $t('register.firstName') }}</label>
                     <div class="input-field">
                       <i class="far fa-address-card icon"></i>
-                      <input v-model="firstname" type="text" placeholder="first name" required />
+                      <input v-model="firstname" type="text" :placeholder="$t('register.placeholders.firstName')" required />
                     </div>
                   </div>
                   <div class="col-md-6">
-                    <label class="input-label">Last Name</label>
+                    <label class="input-label">{{ $t('register.lastName') }}</label>
                     <div class="input-field">
                       <i class="far fa-address-card icon"></i>
-                      <input v-model="lastname" type="text" placeholder="last name" required />
+                      <input v-model="lastname" type="text" :placeholder="$t('register.placeholders.lastName')" required />
                     </div>
                   </div>
                 </div>
 
                 <div class="input-wrapper mb-3">
-                  <label class="input-label">Username</label>
+                  <label class="input-label">{{ $t('register.username') }}</label>
                   <div class="input-field">
                     <i class="far fa-user icon"></i>
-                    <input v-model="username" type="text" placeholder="Coose a username" required />
+                    <input v-model="username" type="text" :placeholder="$t('register.placeholders.username')" required />
                   </div>
                 </div>
 
                 <div class="input-wrapper mb-3">
-                  <label class="input-label">Email</label>
+                  <label class="input-label">{{ $t('register.email') }}</label>
                   <div class="input-field">
                     <i class="far fa-envelope icon"></i>
-                    <input v-model="email" type="email" placeholder="Enter your email" required />
+                    <input v-model="email" type="email" :placeholder="$t('register.placeholders.email')" required />
                   </div>
                 </div>
 
                 <div class="row g-3 mb-4">
                   <div class="col-md-6">
-                    <label class="input-label">Password</label>
+                    <label class="input-label">{{ $t('register.password') }}</label>
                     <div class="input-field">
                       <i class="fas fa-lock icon"></i>
                       <input v-model="password" type="password" placeholder="••••••••" required />
                     </div>
                   </div>
                   <div class="col-md-6">
-                    <label class="input-label">Confirm</label>
+                    <label class="input-label">{{ $t('register.confirm') }}</label>
                     <div class="input-field">
                       <i class="fas fa-shield-alt icon"></i>
                       <input v-model="confirmPassword" type="password" placeholder="••••••••" required />
@@ -88,13 +80,16 @@
                 </div>
 
                 <button type="submit" class="btn-primary-modern">
-                  <span>Create Account <i class="fas fa-arrow-right ms-2 small"></i></span>
+                  <span>
+                    {{ $t('register.submit') }}
+                    <i class="fas mx-2 small" :class="$i18n.locale === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right'"></i>
+                  </span>
                 </button>
               </form>
 
               <p class="text-center mt-4 mb-0 text-muted small">
-                Already have an account?
-                <router-link to="/" class="text-success fw-bold text-decoration-none">Login here</router-link>
+                {{ $t('register.alreadyHaveAccount') }}
+                <router-link to="/" class="text-success fw-bold text-decoration-none">{{ $t('register.loginHere') }}</router-link>
               </p>
             </div>
           </div>
@@ -106,10 +101,12 @@
 
 <script setup>
   import { ref } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import { useRouter } from 'vue-router'
   import api from '@/components/Authentication Service/AuthAPI';
   import { errorDialog } from '@/components/Modals/Modal'
 
+  const { t } = useI18n()
   const router = useRouter()
   const username = ref('')
   const firstname = ref('')
@@ -120,7 +117,7 @@
 
   const Register = async () => {
     if (password.value !== confirmPassword.value) {
-      await errorDialog('Passwords do not match')
+      await errorDialog(t('register.errors.mismatch'))
       return
     }
 
@@ -135,7 +132,7 @@
       })
       router.push('/')
     } catch (err) {
-      let errorMessage = 'An unexpected error occurred.';
+      let errorMessage = t('register.errors.generic');
       if (err.response && err.response.data) {
         errorMessage = err.response.data;
       }
@@ -355,6 +352,21 @@
     height: 6px;
     background: rgba(255,255,255,0.1);
     border-radius: 3px;
+  }
+
+  [dir="rtl"] .input-field i {
+    left: auto;
+    right: 15px;
+  }
+
+  [dir="rtl"] .input-field input {
+    padding: 10px 42px 10px 10px; 
+    text-align: right;
+  }
+
+  [dir="rtl"] .pulse-dot {
+    margin-right: 0;
+    margin-left: 12px;
   }
 </style>
 
