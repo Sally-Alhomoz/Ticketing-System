@@ -27,14 +27,16 @@ namespace TicketingSystem.Services.Services
         {
             _logger.LogInformation("Adding user");
 
+            var userId = Guid.NewGuid();
+
             var user = new User
             {
-                Id = Guid.NewGuid(),
+                Id = userId,
                 FirstName = u.FirstName,
                 LastName=u.LastName,
                 Username = u.Username,
                 Email = u.Email,
-                Password = u.Password,
+                Password = _uow.Users.HashPassword(u.Password, userId.ToString()),
                 Role = Role.Customer,
                 Status = UserStatus.inActive
             };
@@ -48,16 +50,17 @@ namespace TicketingSystem.Services.Services
         {
             _logger.LogInformation("Adding new support staff."); 
 
-            string tempPassword = Guid.NewGuid().ToString("N").Substring(0, 8); 
+            string tempPassword = Guid.NewGuid().ToString("N").Substring(0, 8);
+            var userId = Guid.NewGuid();
 
             var user = new User
             {
-                Id = Guid.NewGuid(),
+                Id = userId,
                 Username = u.Username,
                 FirstName=u.FirstName,
                 LastName=u.LastName,
                 Email=u.Email,
-                Password = tempPassword, 
+                Password = _uow.Users.HashPassword(tempPassword,userId.ToString()),
                 Role = Role.Support,
                 Status = UserStatus.Pending 
             };
@@ -107,6 +110,7 @@ namespace TicketingSystem.Services.Services
                 return false;
             }
 
+
             bool flag = await VerifyPassword(user.Password, exist.Id, exist.Password);
             if (flag)
             {
@@ -114,6 +118,7 @@ namespace TicketingSystem.Services.Services
                 {
                     exist.Status = UserStatus.Active;
                     _uow.Users.Update(exist);
+                    await _uow.Complete();
                 }
                 _logger.LogInformation("Login successful for username: {Username}", user.Username);
             }
@@ -121,7 +126,6 @@ namespace TicketingSystem.Services.Services
             {
                 _logger.LogWarning("Login failed for username: {Username}", user.Username);
             }
-            await _uow.Complete();
             return flag;
 
         }
@@ -201,20 +205,6 @@ namespace TicketingSystem.Services.Services
             return staff;
         }
 
-        private string HashPassword(string pass, string id)
-        {
-            _logger.LogDebug("Hashing password for user ID {UserId}.", id);
-            byte[] userid = Encoding.UTF8.GetBytes(id);
-
-            byte[] hashed = KeyDerivation.Pbkdf2(
-                password: pass,
-                salt: userid,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 100000,
-                numBytesRequested: 32);
-
-            return Convert.ToBase64String(hashed);
-        }
 
         public async Task<bool> ChangePassword(string username, ChangePassword dto)
         {
@@ -235,7 +225,7 @@ namespace TicketingSystem.Services.Services
                 _logger.LogWarning("Verification failed for {Username}.", username);
                 return false;
             }
-            user.Password = HashPassword(dto.NewPassword, user.Id.ToString());
+            user.Password = _uow.Users.HashPassword(dto.NewPassword, user.Id.ToString());
 
             if (user.Status == UserStatus.Pending)
             {
