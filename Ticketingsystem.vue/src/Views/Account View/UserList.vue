@@ -211,7 +211,10 @@
   }
 
   function sortIcon(field) {
-    if (sortByField.value !== field) return 'fas fa-sort ms-2 opacity-50'
+    const marginClass = locale.value === 'ar' ? 'me-2' : 'ms-2';
+
+    if (sortByField.value !== field) return `fas fa-sort ${marginClass} opacity-50`;
+
     return sortDirection.value === 'asc'
       ? 'fas fa-sort-up ms-2 text-primary'
       : 'fas fa-sort-down ms-2 text-primary'
@@ -282,7 +285,7 @@
       try {
         loading.value = true;
         const response = await api.post('/api/Account/AddStaff', data);
-        const pwd = response.data.temporaryPassword || response.data;
+        const pwd = response.data.temporaryPassword;
 
         await Swal.fire({
           title: t('users.addStaffModal.successTitle') || 'Success!',
