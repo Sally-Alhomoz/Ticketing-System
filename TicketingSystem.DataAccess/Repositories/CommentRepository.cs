@@ -31,6 +31,7 @@ namespace TicketingSystem.DataAccess.Repositories
             _logger.LogInformation("Fetching comments for Ticket: {TicketId}", ticketId);
 
             var comments = _db.Comments
+                .AsNoTracking()
                 .Include(c=>c.CreatedByUser)
                 .Where(c => c.TicketId == ticketId);
 
@@ -42,6 +43,7 @@ namespace TicketingSystem.DataAccess.Repositories
             _logger.LogInformation("Fetching comments for User {userId}", userId);
 
             var comments = _db.Comments
+                .AsNoTracking()
                 .Include(c => c.CreatedByUser)
                 .Where(c => c.CreatedBy == userId);
 
