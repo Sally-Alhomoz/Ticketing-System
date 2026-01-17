@@ -82,7 +82,8 @@ namespace TicketingSystem.WebAPI.Controllers
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo,
-                username = u.Username
+                username = u.Username,
+                status = u.Status.ToString()
             });
         }
 
