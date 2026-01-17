@@ -114,7 +114,10 @@
               <td>{{ formatDate(ticket.createDate) }}</td>
               <td>
                 <div class="d-flex justify-content-center gap-2">
-                  <router-link :to="`/app/ticket/${ticket.id}`" class="btn btn-sm text-primary">
+                  <router-link
+                               :to="`/app/ticket/${ticket.id}`"
+                               class="btn btn-sm text-primary"
+                               :title="$t('tickets.viewDetails')">
                     <i class="fa-solid fa-eye"></i>
                   </router-link>
                 </div>
@@ -343,6 +346,33 @@ const AddTicket = async (ticketData) => {
       productList.value = response.data.items || response.data;
     } catch (err) {
       console.error("Failed to fetch products for dropdown", err);
+    }
+  };
+
+  const handleAdminAssign = async (ticketId, staffId) => {
+    const selectedStaff = staffList.value.find(s => s.id == staffId);
+    const staffName = selectedStaff ? `${selectedStaff.firstName} ${selectedStaff.lastName}` : "Unassigned";
+
+    const confirmed = await confirmDialog(
+      "Change Assignment",
+      `Are you sure you want to assign this ticket to ${staffName}?`,
+      "Assign"
+    );
+
+    if (confirmed) {
+      try {
+        loading.value = true;
+        await api.patch(`/api/Ticket/AssignTo?ticketId=${ticketId}&staffId=${staffId || ''}`);
+
+        successDialog("Success", `Ticket assigned to ${staffName}`);
+        await fetchTickets();
+      } catch (err) {
+        errorDialog("Error", "Failed to update assignment");
+      } finally {
+        loading.value = false;
+      }
+    } else {
+      await fetchTickets();
     }
   };
 
