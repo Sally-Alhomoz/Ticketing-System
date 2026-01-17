@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <button class="btn btn-outline-secondary btn-sm shadow-sm" @click="$router.back()">
+      <button class="btn btn-outline-secondary btn-sm shadow-sm" @click="$router.push('/app/tickets')">
         <i class="fas fa-arrow-left me-2"></i>{{ $t('ticketDetails.backToList') }}
       </button>
     </div>
@@ -113,7 +113,7 @@
         </div>
       </div>
     </div>
-
+   
     <div v-if="ticket" class="card shadow-sm border-0 mb-5">
       <div class="card-header bg-white p-0 border-bottom">
         <ul class="nav nav-tabs border-0 px-3">
@@ -405,6 +405,7 @@
       downloadFile(file);
     }
   };
+
 
   const openPreview = (file) => { activeFile.value = file; showModal.value = true; };
   const closeModal = () => { showModal.value = false; activeFile.value = null; };
