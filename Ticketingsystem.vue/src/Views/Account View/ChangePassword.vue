@@ -3,6 +3,12 @@
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6">
 
+        <div v-if="$route.query.firstLogin" class="alert alert-success shadow-sm mb-4 rounded-xl border-0">
+          <i class="fas fa-shield-alt me-2"></i>
+          <strong>{{ locale === 'ar' ? 'مرحباً بك!' : 'Welcome!' }}</strong>
+          {{ locale === 'ar' ? 'يرجى تعيين كلمة مرور جديدة لتفعيل حسابك.' : 'Please set a new password to activate your account.' }}
+        </div>
+
         <h2 class="text-center mb-5 fw-bold profile-title">{{ $t('changePassword.title') }}</h2>
 
         <div class="card profile-card shadow-lg border-0 rounded-xl">
@@ -66,7 +72,7 @@
 <script setup>
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
-  import { useI18n } from 'vue-i18n' // Import i18n
+  import { useI18n } from 'vue-i18n' 
   import api from '@/components/Authentication Service/AuthAPI'
   import { useConfirmWarning, successDialog, errorDialog } from '@/components/Modals/Modal'
   import { useAuth } from '@/components/Authentication Service/Authentication'
