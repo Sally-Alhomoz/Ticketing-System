@@ -22,7 +22,6 @@ namespace TicketingSystem.DataAccess.Repositories
         {
             _logger.LogInformation("Adding user to the Database");
 
-            user.Password = HashPassword(user.Password, user.Id.ToString());
             _db.Users.Add(user);
 
             _logger.LogInformation("User added to the database successfully.");
@@ -66,9 +65,10 @@ namespace TicketingSystem.DataAccess.Repositories
             _db.Users.Update(user);
         }
 
-        private string HashPassword(string pass, string id)
+        public string HashPassword(string pass, string id)
         {
             _logger.LogDebug("Hashing password for user ID {UserId}.", id);
+
             byte[] userid = Encoding.UTF8.GetBytes(id);
 
             byte[] hashed = KeyDerivation.Pbkdf2(

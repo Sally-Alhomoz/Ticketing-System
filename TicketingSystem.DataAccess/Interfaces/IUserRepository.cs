@@ -8,6 +8,7 @@ namespace TicketingSystem.DataAccess.Interfaces
         IQueryable<User> GetUsers();
         void Delete(User user);
         Task<bool> VerifyPassword(string pass, Guid id, string storedhash);
+        public string HashPassword(string pass, string id);
         Task<User?> GetByUsername(string name);
         void Update(User user);
     }
