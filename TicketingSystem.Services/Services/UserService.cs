@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedDTOs;
 using SharedDTOs.Enum;
@@ -164,24 +165,26 @@ namespace TicketingSystem.Services.Services
         {
             _logger.LogInformation("Deleting a user.");
 
-            var flag = await _uow.Users.Delete(username);
+            var user = await _uow.Users.GetByUsername(username);
 
-            if (flag)
+            if (user == null)
             {
-                await _uow.Complete();
-                _logger.LogInformation("Deleting a user with username : {Username} successfully.", username);
-                return true;
+                _logger.LogWarning("User not found.");
+                return false;
             }
 
-            _logger.LogInformation("Deleting a user with username : {Username} Failed.", username);
-            return false;
+            _uow.Users.Delete(user);
+
+            await _uow.Complete();
+            _logger.LogInformation("Deleting a user with username : {Username} successfully.", username);
+            return true;
         }
 
         public async Task<List<UserDto>> GetStaff()
         {
             _logger.LogInformation("Get all staff employess");
 
-            var staff = _uow.Users.GetUsers()
+            var staff = await _uow.Users.GetUsers()
                 .Where(u => u.Role == Role.Support || u.Role == Role.Admin)
                 .Select(u => new UserDto
                 {
@@ -193,7 +196,7 @@ namespace TicketingSystem.Services.Services
                     Role = u.Role,
                     Status = u.Status
                 })
-                .ToList();
+                .ToListAsync();
 
             return staff;
         }
@@ -319,22 +322,22 @@ namespace TicketingSystem.Services.Services
                 _ => query.OrderBy(u => u.Username)
             };
 
-            int totalCount = query.Count();
+            int totalCount =await query.CountAsync();
 
-            var users = query
+            var users =await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(u => new UserDto
                 {
                     Id = u.Id,
                     FirstName = u.FirstName,
-                    LastName=u.LastName,
+                    LastName = u.LastName,
                     Username = u.Username,
                     Email = u.Email,
                     Role = u.Role,
                     Status = u.Status
                 })
-                .ToList();
+                .ToListAsync();
 
             return (users, totalCount);
         }

@@ -34,7 +34,7 @@ namespace TicketingSystem.Services.Services
                 Title = t.Title,
                 Description = t.Description,
                 Status = TicketStatus.New,
-                CreateDate=DateTime.Now,
+                CreateDate=DateTime.UtcNow,
                 Priority = TicketPriority.Medium, 
                 productId = t.productId,
                 CreatedBy = CreateById,
@@ -335,9 +335,9 @@ namespace TicketingSystem.Services.Services
                 _ => query.OrderBy(t => t.Title)
             };
 
-            int totalCount = query.Count();
+            int totalCount =await query.CountAsync();
 
-            var ticktes = query
+            var ticktes =await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(t => new TicketDto
@@ -354,9 +354,9 @@ namespace TicketingSystem.Services.Services
                     CreatedByFullName = t.Creator.FirstName + " " + t.Creator.LastName,
                     AssignedToFullName = t.AssignedTo != null
                     ? t.AssignedUser.FirstName + " " + t.AssignedUser.LastName : "Unassigned",
-                    ProductName =t.product.ProductName,
+                    ProductName = t.product.ProductName,
                 })
-                .ToList();
+                .ToListAsync();
 
             return (ticktes, totalCount);
         }
