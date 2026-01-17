@@ -37,28 +37,19 @@ namespace TicketingSystem.DataAccess.Repositories
             return users;
         }
 
-        public async Task<bool> Delete(string username)
+        public void Delete(User user)
         {
             _logger.LogInformation("Deleting a user from the database.");
 
-            var user = _db.Users.FirstOrDefault(x => x.Username == username);
-
-            if (user == null)
-            {
-                _logger.LogWarning("No user Found with username : {Username}.", username);
-                return false;
-            }
-
             _db.Users.Remove(user);
             _logger.LogInformation("User with username : {Username} deleted successfully.", user.Username);
-            return true;
         }
 
         public async Task<User?> GetByUsername(string name)
         {
             _logger.LogInformation("Retriving a user by username: {Username}.", name);
 
-            var user = _db.Users.FirstOrDefault(x => x.Username == name);
+            var user =await _db.Users.FirstOrDefaultAsync(x => x.Username == name);
             if (user != null)
             {
                 _logger.LogInformation("User with username : {Username} found.", name);
@@ -92,21 +83,14 @@ namespace TicketingSystem.DataAccess.Repositories
 
         public async Task<bool> VerifyPassword(string pass, Guid id, string storedhash)
         {
-            var user = _db.Users.FirstOrDefault(x => x.Id == id);
-            if (user == null)
-            {
-                _logger.LogWarning("User not found");
-                return false;
-            }
-
-            _logger.LogDebug("Verifying password for username: {Username}", user.Username);
+            _logger.LogDebug("Verifying password for user.");
 
             var hashed = HashPassword(pass, id.ToString());
 
             bool result = (hashed == storedhash);
 
 
-            _logger.LogDebug("Verifying password for {Username}: {result}", user.Username, result);
+            _logger.LogDebug("Verifying password for user : {result}",result);
             return result;
         }
     }
