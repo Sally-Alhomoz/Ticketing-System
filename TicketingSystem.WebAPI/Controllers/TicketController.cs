@@ -85,7 +85,7 @@ namespace TicketingSystem.WebAPI.Controllers
         public async Task<IActionResult> GetDashBoardCustomer()
         {
             var totalTicketsCount = await _ticketManager.GetCustomerTicketCount(CurrentUserId);
-            var SolvedCount = await _ticketManager.GetRsolvedTicketCount();
+            var SolvedCount = await _ticketManager.GetActiveTicketsCount(CurrentUserId, TicketStatus.Resolved);
             var inProgressCount = await _ticketManager.GetActiveTicketsCount(CurrentUserId, TicketStatus.InProgress);
             var LastTicketUpdate = await _historyService.GetLatestUpdateForCustomer(CurrentUserId);
 
