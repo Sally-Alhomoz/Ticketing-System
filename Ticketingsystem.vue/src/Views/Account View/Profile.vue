@@ -1,11 +1,11 @@
 <template>
   <div class="container py-5 edit-profile-container">
-    <h2 class="text-center mb-5 fw-bold profile-title">Profile Settings</h2>
+    <h2 class="text-center mb-5 fw-bold profile-title">{{ $t('profile.title') }}</h2>
 
     <div class="card profile-card shadow-lg border-0 rounded-xl">
       <div class="card-body p-4 p-md-5">
         <div class="row">
-          <div class="col-lg-4 border-end pe-lg-4 mb-4 mb-lg-0 text-center">
+          <div class="col-lg-4 border-lg-end pe-lg-4 mb-4 mb-lg-0 text-center profile-sidebar">
             <div class="avatar-placeholder mb-3">
               <div class="avatar-circle">
                 {{ firstName?.[0] }}{{ lastName?.[0] }}
@@ -16,25 +16,25 @@
 
             <div class="mt-4 pt-3 border-top">
               <router-link to="/app/profile/changepassword" class="btn btn-outline-secondary w-100">
-                <i class="fas fa-lock me-2"></i> Change Password
+                <i class="fas fa-lock mx-2"></i> {{ $t('profile.changePassword') }}
               </router-link>
             </div>
           </div>
 
           <div class="col-lg-8 ps-lg-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-              <h5 class="fw-semibold text-dark mb-0">Account Information</h5>
+              <h5 class="fw-semibold text-dark mb-0">{{ $t('profile.accountInfo') }}</h5>
               <button class="btn btn-sm"
                       :class="isEditing ? 'btn-danger' : 'btn-outline-primary'"
                       @click="toggleEdit">
-                <i :class="isEditing ? 'fas fa-times' : 'fas fa-edit'"></i>
-                {{ isEditing ? 'Cancel' : 'Edit Profile' }}
+                <i :class="isEditing ? 'fas fa-times' : 'fas fa-edit'" class="mx-1"></i>
+                {{ isEditing ? $t('profile.cancel') : $t('profile.editProfile') }}
               </button>
             </div>
 
             <form @submit.prevent="confirmUpdate">
               <div class="mb-4">
-                <label class="form-label text-dark"><strong>Username</strong></label>
+                <label class="form-label text-dark"><strong>{{ $t('profile.username') }}</strong></label>
                 <div class="input-group">
                   <input type="text" class="form-control bg-light" v-model="username" readonly />
                   <span class="input-group-text"><i class="fas fa-at text-muted"></i></span>
@@ -43,17 +43,17 @@
 
               <div class="row">
                 <div class="col-md-6 mb-4">
-                  <label class="form-label text-dark"><strong>First Name</strong></label>
+                  <label class="form-label text-dark"><strong>{{ $t('profile.firstName') }}</strong></label>
                   <input type="text" class="form-control" v-model="firstName" :readonly="!isEditing" :class="{'is-editing': isEditing}" />
                 </div>
                 <div class="col-md-6 mb-4">
-                  <label class="form-label text-dark"><strong>Last Name</strong></label>
+                  <label class="form-label text-dark"><strong>{{ $t('profile.lastName') }}</strong></label>
                   <input type="text" class="form-control" v-model="lastName" :readonly="!isEditing" :class="{'is-editing': isEditing}" />
                 </div>
               </div>
 
               <div class="mb-4">
-                <label class="form-label text-dark"><strong>E-mail</strong></label>
+                <label class="form-label text-dark"><strong>{{ $t('profile.email') }}</strong></label>
                 <div class="input-group">
                   <input type="email" class="form-control" v-model="email" :readonly="!isEditing" :class="{'is-editing': isEditing}" />
                   <span class="input-group-text"><i class="fas fa-envelope text-muted"></i></span>
@@ -62,7 +62,7 @@
 
               <div class="d-flex justify-content-end mt-5" v-if="isEditing">
                 <button type="submit" class="btn btn-primary update-btn">
-                  Save Changes
+                  {{ $t('profile.saveChanges') }}
                 </button>
               </div>
             </form>
@@ -75,9 +75,11 @@
 
 <script setup>
   import { ref, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import api from '@/components/Authentication Service/AuthAPI'
   import { useConfirmWarning, successDialog, errorDialog } from '@/components/Modals/Modal'
 
+  const { t } = useI18n()
   const username = ref('')
   const email = ref('')
   const firstName = ref('')
@@ -105,9 +107,9 @@
 
   const confirmUpdate = async () => {
     const confirmed = await confirmDialog(
-      'Save Changes?',
-      'Are you sure you want to update your profile information?',
-      'Save'
+      t('profile.dialogs.saveTitle'),
+      t('profile.dialogs.saveBody'),
+      t('profile.dialogs.saveConfirm')
     )
     if (confirmed) {
       await updateProfile()
@@ -127,14 +129,14 @@
       isEditing.value = false;
       originalData.value = { ...payload };
 
-      await successDialog('Profile Updated', 'Your information has been successfully updated.');
+      await successDialog(t('profile.dialogs.successTitle'), t('profile.dialogs.successBody'));
     } catch (error) {
       console.error("Backend Validation Error:", error.response?.data);
-      const msg = error.response?.data?.errors
-        ? "Please check your input format."
-        : (error.response?.data || 'Issue updating profile.');
+      const msg = isValidationError
+        ? t('profile.dialogs.inputError')
+        : (error.response?.data || t('profile.dialogs.genericError'));
 
-      await errorDialog(msg, 'Update Failed');
+      await errorDialog(msg, t('profile.dialogs.errorTitle'));
     }
   }
 
@@ -168,7 +170,35 @@
     font-size: 2.5rem;
     font-weight: bold;
     margin: 0 auto;
+    line-height: 1;
     text-transform: uppercase;
+  }
+
+  [dir="rtl"] .border-lg-end {
+    border-right: none !important;
+    border-left: 1px solid #dee2e6 !important;
+  }
+
+  [dir="rtl"] .input-group {
+    flex-direction: row-reverse;
+  }
+
+  [dir="rtl"] .input-group-text {
+    border-radius: 0 0.375rem 0.375rem 0 !important;
+    border-left: 0;
+    border-right: 1px solid #dee2e6;
+  }
+
+  [dir="rtl"] .form-control {
+    border-radius: 0.375rem 0 0 0.375rem !important;
+    text-align: right;
+  }
+
+  [dir="rtl"] .form-label,
+  [dir="rtl"] .text-md-end {
+    text-align: right !important;
+    display: block;
+    width: 100%;
   }
 
   .edit-profile-container {
