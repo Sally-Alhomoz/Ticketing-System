@@ -46,6 +46,11 @@ const messages = {
         match: 'Passwords do not match.',
         short: 'Password is too short.',
         failed: 'Update failed. Check your current password.'
+      },
+      modal: {
+        title: 'Confirm Change',
+        body: 'You will be logged out to verify the new credentials.',
+        confirm: 'Update'
       }
     },
     profile: {
@@ -140,6 +145,9 @@ const messages = {
         lastName: 'Last Name',
         email: 'Email',
         username: 'Username',
+        successTitle: 'Staff Member Created',
+        tempPassword: 'Temporary Password (Please share with the user)',
+        done: 'Done',
         create: 'Create',
         placeholders: {
           fn: 'Enter first name',
@@ -155,11 +163,12 @@ const messages = {
       },
       success: {
         deleted: 'User deleted successfully.'
-      }
+      },
     },
     tickets: {
       title: 'Tickets',
       searchPlaceholder: 'Search tickets...',
+      viewDetails: 'View Details',
       addTicket: 'Add Ticket',
       table: {
         title: 'Title',
@@ -286,6 +295,11 @@ const messages = {
         match: 'كلمات المرور غير متطابقة.',
         short: 'كلمة المرور قصيرة جداً.',
         failed: 'فشل التحديث. تحقق من كلمة المرور الحالية.'
+      },
+      modal: {
+        title: 'تأكيد التغيير',
+        body: ' سيتم تسجيل خروجك للتحقق من البيانات الجديدة.',
+        confirm: 'تحديث'
       }
     },
     profile: {
@@ -380,6 +394,9 @@ const messages = {
         lastName: 'اسم العائلة',
         email: 'البريد الإلكتروني',
         username: 'اسم المستخدم',
+        successTitle: 'تم إنشاء حساب الموظف',
+        tempPassword: 'كلمة المرور المؤقتة (يرجى مشاركتها مع المستخدم)',
+        done: 'تم',
         create: 'إنشاء',
         placeholders: {
           fn: 'أدخل الاسم الأول',
@@ -417,6 +434,7 @@ const messages = {
     tickets: {
       title: 'التذاكر',
       searchPlaceholder: 'البحث عن التذاكر...',
+      viewDetails: 'عرض التفاصيل',
       addTicket: 'إضافة تذكرة',
       table: {
         title: 'العنوان',
