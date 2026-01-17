@@ -91,7 +91,16 @@
         password: form.password
       });
       login(response.data.token);
-      router.push('/app/home');
+
+      if (response.data.status === 'Pending') {
+        router.push({
+          path: '/app/profile/changepassword',
+          query: { firstLogin: 'true' }
+        });
+      } else {
+        // Normal redirect
+        router.push('/app/home');
+      }
     } catch (err) {
       errorMessage.value = "Invalid login credentials.";
     } finally {
